@@ -1,348 +1,631 @@
 #include <iostream>
-#include <string.h>
+#include <string>
+#include <cstring>
+#include <vector>
+
 using namespace std;
 
-class Karateka {
-private:
-    static int contorId;
-    const int idSala;
-    char* numeSala;
-    string tipAntrenament;
-    char culoareCentura;
-    int nrAni;
-    float* gradCentura;
-    bool sensei;
+class Student {
+    private:
+        int student_id;
+        string name;
+        int age;
+        float weight;
+    public:
 
-public:
-    //Constructori
-    Karateka();  // Constructor fara parametrii
-    Karateka(char* numeSala, string tipAntrenament, char culoareCentura, int nrAni,
-        float* gradCentura, bool sensei, int ); // Constructor parametrizat
-    Karateka(const Karateka& obj);   // Copy constructor
+        // Constructors
+        Student() {
+            student_id = 0;
+            name = "";
+            age = 0;
+            weight = 0.0;
+        }
 
-    //Operator
-    Karateka& operator = (const Karateka&);
-    friend ostream& operator <<(ostream& out, const Karateka& obj);
-    friend istream& operator >>(istream& in, Karateka& obj);
-    Karateka& operator++();
-    Karateka operator++ (int);
-    Karateka operator+(const Karateka& obj);
-    Karateka operator+(int);
-    friend Karateka operator+(int, Karateka obj);
-    bool operator==(const Karateka&);
-    float operator[](int);
-    operator int();
-    //operator int() const {return this->;}
+        Student(int id, string n, int a, float w) {
+            student_id = id;
+            name = n;
+            age = a;
+            weight = w;
+        }
 
+        // Getters and Setters
+        void setStudentID(int id) {
+            student_id = id;
+        }
 
-    //Metode
-    void afisare();
-    void citire();
+        int getStudentID() const {
+            return student_id;
+        }
 
-    //Get+Set
-    static int getContorId() {return Karateka::contorId;}
-    string getTipAntrenament() {return tipAntrenament;}
-    int getnrAni() {return nrAni;}
-    const float* getCantitateMiere() const {return this->gradCentura;}
+        void setName(string n) {
+            name = n;
+        }
 
+        string getName() const {
+            return name;
+        }
 
-    friend void afisare2(const Karateka& obj);
+        void setAge(int a) {
+            age = a;
+        }
 
+        int getAge() const {
+            return age;
+        }
 
-    //Destructor
-    ~Karateka();
+        void setWeight(float w) {
+            weight = w;
+        }
 
+        float getWeight() const {
+            return weight;
+        }
+
+        // Display student information
+        friend ostream& operator<<(ostream& os, const Student& s) {
+            os << "Student ID: " << s.student_id << endl;
+            os << "Name: " << s.name << endl;
+            os << "Age: " << s.age << endl;
+            os << "Weight: " << s.weight << " kg" << endl;
+            return os;
+        }
 };
 
-int Karateka::contorId = 1000;
+class Instructor {
+    private:
+        string name;
+        int age;
+        char* style;
+        float experienceYears;
 
-Karateka::~Karateka(){
+    public:
+        // Constructors
+        Instructor() : name(""), age(0), style(nullptr), experienceYears(0.0) {}
+        Instructor(const string& name, int age, const char* style, float experienceYears) : name(name), age(age), experienceYears(experienceYears) {
 
-    if(this->numeSala!=NULL)
-    {
-        delete[] this->numeSala;
-        this->numeSala=NULL;
-    }
-    if(this->gradCentura!=NULL)
-    {
-        delete[] this->gradCentura;
-        this->gradCentura=NULL;
-    }
-}
-
-Karateka::Karateka():idSala(contorId++) {
-    numeSala = new char[strlen("Anonim") + 1]; /// Alocat memorie fara sa initializam
-    strcpy(numeSala, "Anonim");  /// Initializam variabila
-    tipAntrenament = "Anonim";
-    culoareCentura = '-';
-    nrAni = 0;
-    gradCentura = NULL;
-    sensei = false;
-}
-
-Karateka::Karateka(char* numeSala, string tipAntrenament, char culoareCentura, int nrAni,
-float* gradCentura, bool sensei): idSala(contorId++){
-    this->numeSala = new char[strlen(numeSala) + 1]; ///alocat memorie
-    strcpy(this->numeSala, numeSala); ///initializez variabila
-    this->tipAntrenament = tipAntrenament;
-    this->culoareCentura = culoareCentura;
-    this->nrAni = nrAni;
-    this->gradCentura = new float[gradCenetura];
-    for(int i=0; i<nrAni; i++)
-        this->gradCentura[i] = gradCentura[i];
-    //this->gradCentura=gradCentura;
-    this->sensei = sensei;
-}
-
-Karateka::Karateka(const Karateka& obj): idSala(contorId++){
-    this->numeSala = new char[strlen(obj.numeSala) + 1];
-    strcpy(this->numeSala, obj.numeSala);
-    this->tipAntrenament = obj.tipAntrenament;
-    this->culoareCentura = obj.culoareCentura;
-    this->nrAni = obj.nrAni;
-    this->gradCentura = new float[obj.nrAni];
-    for(int i = 0; i < obj.nrAni; i++)
-        this->gradCentura[i] = obj.gradCentura[i];  /// Pentru a avea o zona de memorie diferita
-    this->sensei = obj.sensei;
-}
-
-Karateka& Karateka::operator = (const Karateka& obj){
-    if(this != &obj){
-        if(this->numeSala != NULL){
-        delete[] this->numeSala;
-        this->numeSala = NULL;
+            if (style != nullptr)
+            {
+                this->style = new char[strlen(style) + 1];
+                strcpy(this->style, style);
+            }
+            else
+            {
+                this->style = nullptr;
+            }
         }
 
-        if(this->gradCentura != NULL){
-            delete[] this->gradCentura;
-            gradCentura = NULL;
+        Instructor(const Instructor& i) : name(i.name), age(i.age), experienceYears(i.experienceYears) {
+
+            if (i.style != nullptr)
+            {
+                style = new char[strlen(i.style) + 1];
+                strcpy(style, i.style);
+            }
+            else {
+                style = nullptr;
+            }
         }
 
-        this->numeSala = new char[strlen(obj.numeSala) + 1];
-        strcpy(this->numeSala, obj.numeSala);
-        this->tipAntrenament = obj.tipAntrenament;
-        this->culoareCentura = obj.culoareCentura;
-        this->nrAni = obj.nrAni;
-        this->gradCentura = new float[obj.nrAni];
-        for(int i = 0; i < obj.nrAni; i++)
-            this->gradCentura[i] = obj.gradCentura[i];  /// Pentru a avea o zona de memorie diferita
-        this->sensei = obj.sensei;
-    }
-    return *this;
-}
+        // Destructor
+        ~Instructor() {
+            delete[] style;
+        }
+
+
+        // Getters and Setters
+        string getName() const {
+            return name;
+        }
+
+        int getAge() const {
+            return age;
+        }
+
+        const char* getStyle() const {
+            return style;
+        }
+
+        float getExperienceYears() const {
+            return experienceYears;
+        }
+
+        void setName(const string& name) {
+            this->name = name;
+        }
+
+        void setAge(int age) {
+            this->age = age;
+        }
+
+        void setStyle(const char* style) {
+            delete[] this->style;
+
+            if (style != nullptr)
+            {
+                this->style = new char[strlen(style) + 1];
+                strcpy(this->style, style);
+            }
+            else
+            {
+                this->style = nullptr;
+            }
+        }
+
+        void setExperienceYears(float experienceYears) {
+            this->experienceYears = experienceYears;
+        }
+
+
+        // Functionality
+        void printInstructor() const {
+            cout << "Name: " << name << endl;
+            cout << "Age: " << age << endl;
+            cout << "Style: " << style << endl;
+            cout << "Experience years: " << experienceYears << endl;
+        }
+};
+
+class KarateClass {
+    private:
+        Student* students;
+        int num_students;
+        string instructor;
+
+    public:
+
+        // Constructors
+        KarateClass() {
+            students = nullptr;
+            num_students = 0;
+            instructor = "";
+        }
+
+        KarateClass(Student* s, int num, string i) {
+            students = s;
+            num_students = num;
+            instructor = i;
+        }
+
+        // Getters and Setters
+        void setStudents(Student* s) {
+            students = s;
+        }
+
+        Student* getStudents() {
+            return students;
+        }
+
+        void setNumStudents(int num) {
+            num_students = num;
+        }
+
+        int getNumStudents() {
+            return num_students;
+        }
+
+        void setInstructor(string i) {
+            instructor = i;
+        }
+
+        string getInstructor() {
+            return instructor;
+        }
+
+
+        // Add a new student to the class
+        void addStudent(Student s) {
+            Student* new_students = new Student[num_students + 1];
+
+            for (int i = 0; i < num_students; i++)
+            {
+                new_students[i] = students[i];
+            }
+
+            new_students[num_students] = s;
+
+            num_students++;
+
+            delete[] students;
+            students = new_students;
+        }
+
+
+        // Remove a student from the class
+        void removeStudent(int student_id) {
+            int index = -1;
+            for (int i = 0; i < num_students; i++)
+            {
+                if (students[i].getStudentID() == student_id)
+                {
+                    index = i;
+                    break;
+                }
+            }
+
+            if (index == -1)
+            {
+                cout << "Error: student with ID " << student_id << " not found." << endl;
+                return;
+            }
+
+            for (int i = index; i < num_students - 1; i++)
+            {
+                students[i] = students[i + 1];
+            }
+
+            num_students--;
+
+
+            num_students--;
+            cout << "Student with ID " << student_id << " has been removed." << endl;
+        };
+};
 
 /*
-Karateka& Karateka::operator++() {
-    this->++;
-    return *this;
+// Add a new student to the class
+void KarateClass::addStudent(Student s) {
 
-}*/
+    Student* new_students = new Student[num_students + 1];
 
-Karateka Karateka::operator++ (int){
-    Karateka aux(*this);
-    ///this->++;
-    ++*this;
-    return aux;
+    for (int i = 0; i < num_students; i++)
+    {
+        new_students[i] = students[i];
+    }
+
+    new_students[num_students] = s;
+
+    num_students++;
+
+    delete[] students;
+    students = new_students;
 }
+*/
 
-Karateka Karateka::operator+ (const Karateka& obj){
-    Karateka aux(*this);
-    aux.tipAntrenament += obj.tipAntrenament;
-    return aux;
+class Dojo {
+    private:
+        KarateClass* classes;
+        int num_classes;
+        string name;
+    public:
 
-}
+    // Constructors
+    Dojo() {
+        classes = nullptr;
+        num_classes = 0;
+        name = "";
+    }
+
+    Dojo(KarateClass* c, int num, string n) {
+        classes = c;
+        num_classes = num;
+        name = n;
+    }
+
+    // Getters and Setters
+    void setClasses(KarateClass* c) {
+        classes = c;
+    }
+
+    KarateClass* getClasses() {
+        return classes;
+    }
+
+    void setNumClasses(int num) {
+        num_classes = num;
+    }
+
+    int getNumClasses() {
+        return num_classes;
+    }
+
+    void setName(string n) {
+        name = n;
+    }
+
+    string getName() {
+        return name;
+    }
+
+    // Add a new class to the dojo
+    void addClass(KarateClass c) {
+        KarateClass* new_classes = new KarateClass[num_classes + 1];
+
+        for (int i = 0; i < num_classes; i++)
+        {
+            new_classes[i] = classes[i];
+        }
+
+        new_classes[num_classes] = c;
+
+        num_classes++;
+
+        delete[] classes;
+        classes = new_classes;
+    }
+
+    // Remove a class from the dojo
+    void removeClass(string instructor) {
+        int index = -1;
+        for (int i = 0; i < num_classes; i++)
+        {
+            if (classes[i].getInstructor() == instructor)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1)
+        {
+            cout << "Error: class with instructor " << instructor << " was not found." << endl;
+            return;
+        }
+
+        KarateClass* new_classes = new KarateClass[num_classes - 1];
+
+        for (int i = 0, j = 0; i < num_classes; i++)
+        {
+            if (i != index)
+            {
+                new_classes[j] = classes[i];
+                j++;
+            }
+        }
+
+        num_classes--;
+
+        delete[] classes;
+        classes = new_classes;
+    }
+
+
+    // Display information about the dojo, including all classes and their students
+
+    friend ostream& operator<<(ostream& os, const Dojo& d) {
+
+        os << "Dojo Name: " << d.name << endl;
+        os << "Number of classes: " << d.num_classes << endl;
+
+        for (int i = 0; i < d.num_classes; i++)
+        {
+            os << "Class " << i + 1 << ":" << endl;
+            os << "Instructor: " << d.classes[i].getInstructor() << endl;
+            os << "Number of students: " << d.classes[i].getNumStudents() << endl;
+
+            Student* students = d.classes[i].getStudents();
+
+            for (int j = 0; j < d.classes[i].getNumStudents(); j++)
+            {
+                os << "Student " << j + 1 << ":" << endl;
+                os << students[j] << endl;
+            }
+        }
+
+        return os;
+    }
+};
+
+
+class Competition {
+    private:
+        string name;
+        int year;
+        vector<string> winners;
+    public:
+        // Constructors
+        Competition() {
+            name = "";
+            year = 0;
+            winners = vector<string>();
+        }
+
+        Competition(string n, int y, vector<string> w) {
+            name = n;
+            year = y;
+        winners = w;
+        }
+
+
+    // Getters and Setters
+    void setName(string n) {
+        name = n;
+    }
+
+    string getName() const {
+        return name;
+    }
+
+    void setYear(int y) {
+        year = y;
+    }
+
+    int getYear() const {
+        return year;
+    }
+
+    void setWinners(vector<string> w) {
+        winners = w;
+    }
+
+    vector<string> getWinners() const {
+        return winners;
+    }
+
+
+    // Functionality
+    void addWinner(string winner) {
+        winners.push_back(winner);
+    }
+
+    friend ostream& operator<<(ostream& os, const Competition& c) {
+
+        os << "Competition: " << c.name << endl;
+        os << "Year: " << c.year << endl;
+        os << "Winners: ";
+        for (int i = 0; i < c.winners.size(); i++)
+        {
+            os << c.winners[i];
+            if (i != c.winners.size() - 1)
+            {
+                os << ", ";
+            }
+        }
+
+        os << endl;
+        return os;
+    }
+};
+
 
 /*
-Karateka Karateka::operator+(int x){
-    Karateka aux(*this);
-    aux. += x;
-    return aux;
-}*/
 
-Karateka operator+(int x, Karateka obj){
-    return obj+x;
-}
+// Main function
+int main() {
 
-bool Karateka::operator==(const Karateka& obj){
-    return this->tipAntrenament == obj.tipAntrenament;
-}
+    // Create student objects
+    Student student1(1, "Alice", 20, 50.0);
+    Student student2(2, "Bob", 19, 70.0);
+    Student student3(3, "Charlie", 21, 80.0);
+    Student student4(4, "Dave", 22, 75.0);
 
-float Karateka::operator[](int i){
-    if(this->gradCentura == NULL)
-        throw runtime_error("Nu exista elemente in vector");
-    if(i < 0 || i > this->nrAni) {
-        throw runtime_error("Index invalid");
-    }
-    else
-        return this->gradCentura[i];
+     // Create instructor object
+    Instructor instructor("Sensei John", 45, "Shotokan", 20.5);
 
-}
-/*
-Karateka::operator int(){
-    return this->;
-}*/
+    // Create karate class object
+    KarateClass karateClass;
+    karateClass.setInstructor(instructor.getName());
 
-void Karateka::afisare(){
-    cout << "ID: " << this->idSala << endl;
-    cout << "Nume: " << this->numeSala << endl;
-    cout << "Tip antrenament: " << this->tipAntrenament << endl;
-    cout << "culoareCentura: " << this->culoareCentura << endl;
-    cout << "Nr luni: " << this->nrAni << endl;
-    cout << "Grad centura: ";
-    for(int i = 0; i < this->nrAni; i++)
-        cout << this->gradCentura[i] << " ";
-    cout << endl;
-    cout << "sensei: " << this->sensei << endl;
-}
+    // Add students to the class
+    karateClass.addStudent(student1);
+    karateClass.addStudent(student2);
+    karateClass.addStudent(student3);
+    karateClass.addStudent(student4);
 
-void afisare2(const Karateka& obj){
-    cout << "ID: " << obj.idSala << endl;
-    cout << "Nume: " << obj.numeSala << endl;
-    cout << "Tip antrenament: " << obj.tipAntrenament << endl;
-    cout << "Culoarea centurii: " << obj.culoareCentura << endl;
-    cout << "Nr ani experienta: " << obj.nrAni << endl;
-    cout << "Grad centura: ";
-    for(int i = 0; i < obj.nrAni; i++)
-        cout << obj.gradCentura[i] << " ";
-    cout << endl;
-    cout << "sensei: " << obj.sensei << endl;
-}
 
-void Karateka::citire(){
-    cout << "Introduceti numele stupului: " << endl;
-    char numeSala[100];
-    cin >> numeSala;
-    if(this->numeSala != NULL){
-        delete this->numeSala;
-        this->numeSala = NULL;
-    }
-    this->numeSala = new char[strlen(numeSala) + 1];
-    strcpy(this->numeSala, numeSala);
 
-    cout << "Introduceti tipil de antrenament: " << endl;
-    cin >> this->tipAntrenament;
+    // Print the karate class information
+    cout << "Karate Class Information" << endl;
+    cout << "Instructor: " << karateClass.getInstructor() << endl;
+    cout << "Number of Students: " << karateClass.getNumStudents() << endl;
+    Student* students = karateClass.getStudents();
 
-    cout << "Introduceti culoarea centurii: " << endl;
-    cin >> this->culoareCentura;
-
-    cout << "Introduceti numarul de ani de experienta: " << endl;
-    cin >> this->nrAni;
-
-    cout << "Introduceti grdul centurii: " << endl;
-    if(this->gradCentura != NULL){
-        delete[] this->gradCentura;
-        this->gradCentura = NULL;
+    for (int i = 0; i < karateClass.getNumStudents(); i++) {
+        cout << "Student " << i + 1 << ":" << endl;
+        cout << students[i] << endl;
     }
 
-    this->gradCentura = new float[this->nrAni];
-    for(int i = 0; i < this->nrAni; i++)
-        cin >> this->gradCentura[i];
+    // Remove a student from the class
+    karateClass.removeStudent(2);
 
-    cout << "Introduceti sensei: " << endl;
-    cin >> this->sensei;
-}
-
-ostream& operator <<(ostream& out, const Karateka& obj){
-    out << "ID: " << obj.idSala << endl;
-    out << "Nume: " << obj.numeSala << endl;
-    out << "Tip antrenament: " << obj.tipAntrenament << endl;
-    out << "Culoare centura: " << obj.culoareCentura << endl;
-    out << "Nr luni: " << obj.nrAni << endl;
-    out << "Cantitate: ";
-    for(int i = 0; i < obj.nrAni; i++)
-        out << obj.gradCentura[i] << " ";
-    out << endl;
-    out << "sensei: " << obj.sensei << endl;
-    return out;
-}
-
-istream& operator >>(istream& in, Karateka& obj){
-    cout << "Introduceti numele salii: " << endl;
-    char numeSala[100];
-    in >> numeSala;
-    if(obj.numeSala != NULL){
-        delete obj.numeSala;
-        obj.numeSala = NULL;
+    // Print the karate class information again
+    cout << endl << "Karate Class Information" << endl;
+    cout << "Instructor: " << karateClass.getInstructor() << endl;
+    cout << "Number of Students: " << karateClass.getNumStudents() << endl;
+    students = karateClass.getStudents();
+    for (int i = 0; i < karateClass.getNumStudents(); i++)
+    {
+        cout << "Student " << i + 1 << ":" << endl;
+        cout << students[i] << endl;
     }
-    obj.numeSala = new char[strlen(numeSala) + 1];
-    strcpy(obj.numeSala, numeSala);
+*/
 
-    cout << "Introduceti tipul de antrenament: " << endl;
-    in >> obj.tipAntrenament;
 
-    cout << "Introduceti culoarea centurii: " << endl;
-    in >> obj.culoareCentura;
+    int main() {
+    vector<Student> students;
+    string instructor;
 
-    cout << "Introduceti numarul de ani de expereinta: " << endl;
-    in >> obj.nrAni;
+    int choice;
+    do {
+        cout << "---------------------" << endl;
+        cout << "Karate Class Manager" << endl;
+        cout << "---------------------" << endl;
+        cout << "1. Add a student" << endl;
+        cout << "2. Remove a student" << endl;
+        cout << "3. Print all students" << endl;
+        cout << "4. Set instructor" << endl;
+        cout << "5. Quit" << endl;
+        cout << endl << "Enter your choice: ";
+        cin >> choice;
+        cout << endl;
 
-    cout << "Introduceti culoarea centurii: " << endl;
-    if(obj.gradCentura != NULL){
-        delete[] obj.gradCentura;
-        obj.gradCentura = NULL;
-    }
+        switch (choice) {
+            case 1: {
+                int id, age;
+                string name;
+                float weight;
 
-    obj.gradCentura = new float[obj.nrAni];
-    for(int i = 0; i < obj.nrAni; i++)
-        in >> obj.gradCentura[i];
 
-    cout << "Introduceti sensei: " << endl;
-    in >> obj.sensei;
-    return in;
-}
+                cout << "Enter student ID: ";
+                cin >> id;
 
-Karateka::~Karateka(){
-    if(this->numeSala != NULL){
-        delete[] this->numeSala;
-        this->numeSala = NULL;
-    }
+                cout << "Enter student name: ";
+                cin >> name;
 
-    if(this->gradCentura != NULL){
-        delete[] this->gradCentura;
-        gradCentura = NULL;
-    }
-}
+                cout << "Enter student age: ";
+                cin >> age;
 
-int main()
-{
-    Karateka a;
-    char numeSala[]={"Aiko "};
-    float n=1.2, n2=1.3, n3=1.5;
-    float gradCentura[]={n,n2,n3};
-    Karateka a2(numeSala,"Concordia Chiajna ", 'galben', 3, gradCentura, true);
-    cout<<a2.getTipAntrenament();
-    cout<<a.getTipAntrenament();
-    Karateka a3(a2), a4=a2;
-    cout<<a3.getTipAntrenament();
-    cout<<a4.getTipAntrenament();
-    return 0;
+                cout << "Enter student weight: ";
+                cin >> weight;
 
-    /*
-    //cout << (int)a2 << endl;
+                students.push_back(Student(id, name, age, weight));
 
-    //cout<<a[2]<<endl;
+                cout << "Student added successfully." << endl;
+                break;
+            }
 
-    //cout << a2.getTipAntrenament() << endl;
+            case 2: {
+                int id;
+                cout << "Enter student ID: ";
+                cin >> id;
 
-    Karateka a3(a2);
-    Karateka a4 = a2;  // Tot copy constructor
+                bool found = false;
+                for (vector<Student>::iterator it = students.begin(); it != students.end(); ++it) {
+                    if (it->getStudentID() == id) {
+                        students.erase(it);
+                        found = true;
+                        cout << "Student removed successfully." << endl;
+                        break;
+                    }
+                }
 
-    //cout << a3.getTipAntrenament() << endl;
+                if (!found) {
+                    cout << "Student not found." << endl;
+                }
+                break;
+            }
 
-    //cout << Karateka::getContorId(); // 1004, avem 4 stupi
+            case 3: {
+                if (students.size() == 0) {
+                    cout << "No students in the class." << endl;
+                } else {
+                    for (vector<Student>::iterator it = students.begin(); it != students.end(); ++it) {
+                        cout << *it << endl;
+                    }
+                }
+                break;
+            }
 
-    a = a4;
-    cout << a.getTipAntrenament() << endl;
+            case 4: {
+                cout << "Enter instructor name: ";
+                cin >> instructor;
+                cout << "Instructor set to " << instructor << endl;
+                break;
+            }
 
-    //a4.afisare();
-    //a4.citire();
-    //a4.afisare();
-    //cin >> a4;
-    //cout << a4;
+            case 5: {
+                cout << "Goodbye!" << endl;
+                break;
+            }
 
-    for(int i = 0; i < a4.getnrAni(); i++)
-        cout << a4.getCantitateMiere()[i] << ' ';
-        */
+            default: {
+                cout << "Invalid choice. Try again." << endl;
+                break;
+            }
+        }
+
+        cout << endl;
+
+    } while (choice != 5);
 
     return 0;
 }
