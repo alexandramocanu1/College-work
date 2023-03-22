@@ -145,23 +145,27 @@ Student::operator int(){
     return this->beltLevel;
 }
 
+
 Student::Student(): student_id(contorId++) {
-name = "Anonim";
-age = 0;
-weight = 0;
-beltLevel = 0.0;
+
+    name = "Anonim";
+    age = 0;
+    weight = 0;
+    beltLevel = 0.0;
+
 }
 
 Student::Student(string name, int age, float weight): student_id(contorId++) {
-this->name = name;
-this->age = age;
-this->weight = weight;
+    this->name = name;
+    this->age = age;
+    this->weight = weight;
 }
 
+
 Student::Student(const Student& obj): student_id(contorId++){
-this->name = obj.name;
-this->age = obj.age;
-this->weight = obj.weight;
+    this->name = obj.name;
+    this->age = obj.age;
+    this->weight = obj.weight;
 }
 
 Student& Student::operator++() {
@@ -202,8 +206,10 @@ bool Student::operator<(const Student& obj){
 }
 
 float Student::operator[](int i){
+
     if(this->weight == NULL)
         throw runtime_error("Nu exista elemente in vector");
+
     if(i < 0 || i > this->age) {
         throw runtime_error("Index invalid");
     }
@@ -226,6 +232,7 @@ Student& Student::operator = (const Student& obj){
 }
 
 ostream& operator<<(ostream& out, const Student& obj) {
+
             out << "Name: " << obj.name << endl;
             out << "Age: " << obj.age << endl;
             out << "Weight: " << obj.weight << endl;
@@ -234,6 +241,7 @@ ostream& operator<<(ostream& out, const Student& obj) {
 }
 
 istream& operator>>(istream& in, Student& obj) {
+
             cout << "Introduce the student's name: " << endl;
             in >> obj.name;
 
@@ -353,6 +361,7 @@ class Instructor {
         int operator[](int);
         operator int();
         operator int() const {return this->age;}
+
 };
 
 Instructor& Instructor::operator = (const Instructor& obj){
@@ -375,23 +384,27 @@ Instructor& Instructor::operator = (const Instructor& obj){
 }
 
 Instructor& Instructor::operator+(const Instructor& obj){
+
     Instructor aux(*this);
     aux.age += obj.age;
     return aux;
 }
 
 Instructor Instructor::operator+(int x){
+
     Instructor aux(*this);
     aux.age += x;
     return aux;
 }
 
 Instructor& Instructor::operator++() {
+
     this->experienceYears++;
     return *this;
 }
 
 Instructor Instructor::operator++(int){
+
     Instructor aux(*this);
     this->age++;
     return aux;
@@ -550,15 +563,18 @@ KarateClass::operator int() {
 
 
 float KarateClass::operator[](int index) const {
+
     if (index < 0 || index >= num_students) {
         cout << "Error: invalid index" << endl;
         return -1.0f;
     }
+
     return students[index].getBeltLevel();
 }
 
 
 KarateClass KarateClass::operator+(const KarateClass& obj) {
+
     Student* new_students = new Student[num_students + obj.num_students];
 
     for (int i = 0; i < num_students; i++) {
@@ -577,6 +593,7 @@ KarateClass KarateClass::operator+(const KarateClass& obj) {
 }
 
 KarateClass KarateClass::operator+(int n) {
+
     KarateClass copy(*this);
 
     for (int i = 0; i < num_students; i++) {
@@ -604,6 +621,7 @@ KarateClass& KarateClass::operator++() {
 
 
 KarateClass KarateClass::operator++(int) {
+
     KarateClass copy(*this);
     ++(*this);
     return copy;
@@ -611,6 +629,7 @@ KarateClass KarateClass::operator++(int) {
 
 
 KarateClass& KarateClass::operator--() {
+
     for (int i = 0; i < num_students; i++) {
         students[i].demote();
     }
@@ -1125,11 +1144,13 @@ int main() {
 */
 
 
-int main() {
+int main()
+{
     vector<Student> students;
     string instructor;
 
     int choice;
+
     do {
         cout << "---------------------" << endl;
         cout << "Karate Class Manager" << endl;
