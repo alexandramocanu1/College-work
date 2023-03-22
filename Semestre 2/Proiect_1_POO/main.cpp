@@ -13,7 +13,7 @@ class Student {
         const int student_id;
         string name;
         int age;
-        float* weight;
+        float weight;
         double beltLevel;
 
     public:
@@ -37,7 +37,7 @@ class Student {
             weight = w;
         }*/
 
-        Student(string name, int age, float* weight);
+        Student(string name, int age, float weight);
 
 
         /// Getters and Setters
@@ -66,11 +66,11 @@ class Student {
             return age;
         }
 
-        void setWeight(float* w) {
+        void setWeight(float w) {
             weight = w;
         }
 
-        const float* getWeight() const{
+        const float getWeight() const{
             return this->weight;
         }
 
@@ -85,9 +85,7 @@ class Student {
 
 
         /// Destructor
-        ~Student() {
-            delete weight;
-            }
+        ~Student() {};
 
 
         /// Operatori
@@ -115,21 +113,20 @@ int Student::contorId = 1000;
 Student::Student(): student_id(contorId++) {
 name = "Anonim";
 age = 0;
-weight = nullptr;
+weight = 0;
 beltLevel = 0.0;
 }
 
-Student::Student(string name, int age, float* weight): student_id(contorId++) {
+Student::Student(string name, int age, float weight): student_id(contorId++) {
 this->name = name;
 this->age = age;
-this->weight = new float;
+this->weight = weight;
 }
 
 Student::Student(const Student& obj): student_id(contorId++){
 this->name = obj.name;
 this->age = obj.age;
-this->weight = new float;
-*this->weight = *obj.weight;
+this->weight = obj.weight;
 }
 
 Student& Student::operator++() {
@@ -170,7 +167,7 @@ float Student::operator[](int i){
         throw runtime_error("Index invalid");
     }
     else
-        return this->weight[i];
+        return this->weight;
 }
 
 Student::operator int(){
@@ -188,9 +185,8 @@ Student& Student::operator = (const Student& obj){
 ostream& operator<<(ostream& out, const Student& obj) {
             out << "Name: " << obj.name << endl;
             out << "Age: " << obj.age << endl;
-            if(obj.weight != nullptr) {
-                out << "Weight: " << *obj.weight << endl;
-            }
+            out << "Weight: " << obj.weight << endl;
+
             return out;
 }
 
@@ -202,8 +198,7 @@ istream& operator>>(istream& in, Student& obj) {
             in >> obj.age;
 
             cout << "Introduce the student's weight: " << endl;
-            obj.weight = new float;
-            in >> *obj.weight;
+            in >> obj.weight;
 
             return in;
 }
@@ -1060,7 +1055,7 @@ int main() {
                 cout << "Enter student weight: ";
                 cin >> weight;
 
-                students.push_back(Student(name, age, &weight));
+                students.push_back(Student(name, age, weight));
 
                 cout << "Student added successfully." << endl;
                 break;
