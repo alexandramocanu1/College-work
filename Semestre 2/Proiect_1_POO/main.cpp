@@ -3,8 +3,12 @@
 #include <cstring>
 #include <vector>
 #include <windows.h>
+//#include "Competition.h"
+
 
 using namespace std;
+
+class Competition; // Forward declaration of Competition class
 
 class Student {
 
@@ -15,8 +19,22 @@ class Student {
         int age;
         float weight;
         double beltLevel;
+        int score;
 
     public:
+
+       // Student(string n, int s) : name(n), score(s) {}
+/*
+      /// Overloaded + operator inside Student class
+  Student operator+(const Competition& c) const {
+    int newScore = score + c.getScore();
+    return Student(name, newScore);
+  }
+*/
+      // Conversion operator to int
+      operator int() const {
+        return score;
+      }
 
         double promote(int n) const {
             return beltLevel + n;
@@ -36,6 +54,9 @@ class Student {
             age = a;
             weight = w;
         }*/
+
+        Student(string n, int s) : student_id(++contorId), name(n), score(s) {}
+
 
         Student(string name, int age, float weight);
 
@@ -92,23 +113,37 @@ class Student {
         float operator[](int);
         Student& operator++();
         Student operator++(int);
-        Student operator+(const Student& obj);
+        //Student operator+(const Student& obj);
         Student operator+(int);
         friend Student operator+(int, Student obj);
         Student& operator = (const Student&);
         friend ostream& operator <<(ostream& out, const Student& obj);
         friend istream& operator >>(istream& in, Student& obj);
         operator int();
-        operator int() const {return this->age;}
+      //  operator int() const {return this->age;}
         bool operator==(const Student&);
+        bool operator<(const Student&);
 
         ///Metode
         void afisare();
         void citire();
+
 };
+
+/*
+// Overloaded + operator outside Student class
+Competition operator+(const Student& s, const Competition& c) {
+  int newScore = s.operator int() + c.getScore();
+  return Competition(c.getName(), newScore);
+}
+*/
 
 
 int Student::contorId = 1000;
+
+Student::operator int(){
+    return this->beltLevel;
+}
 
 Student::Student(): student_id(contorId++) {
 name = "Anonim";
@@ -140,11 +175,13 @@ Student Student::operator++(int){
     return aux;
 }
 
+/*
 Student Student::operator+ (const Student& obj){
     Student aux(*this);
     aux.age += obj.age;
     return aux;
 }
+*/
 
 Student Student::operator+(int x){
     Student aux(*this);
@@ -160,6 +197,10 @@ bool Student::operator==(const Student& obj){
     return this->name == obj.name;
 }
 
+bool Student::operator<(const Student& obj){
+    return this->name < obj.name;
+}
+
 float Student::operator[](int i){
     if(this->weight == NULL)
         throw runtime_error("Nu exista elemente in vector");
@@ -170,9 +211,11 @@ float Student::operator[](int i){
         return this->weight;
 }
 
+/*
 Student::operator int(){
     return this->age;
 }
+*/
 
 Student& Student::operator = (const Student& obj){
 
@@ -306,6 +349,7 @@ class Instructor {
         Instructor operator+(int);
         friend Instructor operator+(int, Instructor obj);
         bool operator==(const Instructor&);
+        bool operator<(const Instructor&);
         int operator[](int);
         operator int();
         operator int() const {return this->age;}
@@ -360,6 +404,10 @@ Instructor operator+(int x, Instructor obj){
 
 bool Instructor::operator==(const Instructor& obj){
     return this->name == obj.name;
+}
+
+bool Instructor::operator<(const Instructor& obj){
+    return this->name < obj.name;
 }
 
 /*
@@ -489,6 +537,7 @@ class KarateClass {
         KarateClass operator+(int);
         friend KarateClass operator+(int, KarateClass obj);
         bool operator==(const KarateClass&);
+        bool operator<(const KarateClass&);
         float operator[](int) const;
         operator int();
         operator int() const {return this->num_students;}
@@ -575,11 +624,11 @@ KarateClass KarateClass::operator--(int) {
     return copy;
 }
 
-/*
-bool operator<(const KarateClass& obj) {
+
+bool KarateClass::operator<(const KarateClass& obj) {
     return this->num_students < obj.num_students;
 }
-*/
+
 
 /*
 /// Add a new student to the class
@@ -794,6 +843,7 @@ ostream& operator<<(ostream& os, const Dojo& d) {
     }
 
 
+
 Dojo& Dojo::operator++() {
     this->num_classes++;
     return *this;
@@ -928,7 +978,7 @@ class Competition {
     friend ostream& operator<<(ostream& os, const Competition& c);
     friend istream& operator >>(istream& in, Competition& obj);
     Competition& operator = (const Competition&);
-    friend Competition& operator+(const Competition& other);
+    //friend Competition& operator+(const Competition& other);
     Competition& operator+(int num);
     friend Competition& operator+(int, Competition other);
     bool operator==(const Competition&);
@@ -936,6 +986,22 @@ class Competition {
     operator int();
     operator int() const {return *this->numWinners;}
     Competition& operator+(const Competition& other);
+
+/*
+    /// supraincarcarea operatorului + pentru adunarea cu un obiect Student
+    friend Competition operator+(const Student& student) {
+        Competition result(*this); // creare copie a obiectului curent
+        result.setYear(result.getYear() + student.getAge()); // adaugare vârsta studentului la anul competiției
+        return result;
+    }
+
+    /// supraincarcarea operatorului + pentru adunarea a două obiecte de tip Competition
+    friend Competition operator+(const Competition& other) {
+        Competition result(*this); // creare copie a obiectului curent
+        result.setYear(result.getYear() + other.getYear()); // adaugare anul celeilalte competiții la anul curent
+        return result;
+    }
+    */
 };
 
 Competition& Competition::operator++() {
@@ -991,14 +1057,14 @@ Competition& Competition::operator=(const Competition& other) {
             return *this;
 }
 
-
+/*
 Competition& Competition::operator+(const Competition& other) {
     Competition result = *this;
     result.winners.insert(result.winners.end(), other.winners.begin(), other.winners.end());
     *(result.numWinners) += *other.numWinners;
     return result;
 }
-
+*/
 
 Competition& Competition::operator+(int num) {
             Competition result = *this;
