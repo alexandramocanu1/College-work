@@ -928,14 +928,14 @@ class Competition {
     friend ostream& operator<<(ostream& os, const Competition& c);
     friend istream& operator >>(istream& in, Competition& obj);
     Competition& operator = (const Competition&);
-    Competition operator+(const Competition& obj);
-    Competition operator+(int);
-    friend Competition operator+(int, Competition obj);
+    friend Competition& operator+(const Competition& other);
+    Competition& operator+(int num);
+    friend Competition& operator+(int, Competition other);
     bool operator==(const Competition&);
     float operator[](int);
     operator int();
     operator int() const {return *this->numWinners;}
-
+    Competition& operator+(const Competition& other);
 };
 
 Competition& Competition::operator++() {
@@ -964,6 +964,47 @@ ostream& operator<<(ostream& os, const Competition& c) {
         os << endl;
         return os;
 }
+
+istream& operator>>(istream& in, Competition& obj) {
+            cout << "Enter competition name: ";
+            in >> obj.name;
+            cout << "Enter competition year: ";
+            in >> obj.year;
+            cout << "Enter number of winners: ";
+            in >> *(obj.numWinners);
+            for (int i = 0; i < *(obj.numWinners); i++) {
+                string winner;
+                cout << "Enter winner #" << i + 1 << ": ";
+                in >> winner;
+                obj.winners.push_back(winner);
+            }
+            return in;
+}
+
+Competition& Competition::operator=(const Competition& other) {
+            if (this != &other) {
+                name = other.name;
+                year = other.year;
+                winners = other.winners;
+                *numWinners = *other.numWinners;
+            }
+            return *this;
+}
+
+
+Competition& Competition::operator+(const Competition& other) {
+    Competition result = *this;
+    result.winners.insert(result.winners.end(), other.winners.begin(), other.winners.end());
+    *(result.numWinners) += *other.numWinners;
+    return result;
+}
+
+
+Competition& Competition::operator+(int num) {
+            Competition result = *this;
+            *(result.numWinners) += num;
+            return result;
+        }
 
 
 /*
