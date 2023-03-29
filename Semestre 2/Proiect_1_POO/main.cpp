@@ -3,12 +3,9 @@
 #include <cstring>
 #include <vector>
 #include <windows.h>
-//#include "Competition.h"
-
 
 using namespace std;
 
-class Competition; // Forward declaration of Competition class
 
 class Student {
 
@@ -19,22 +16,22 @@ class Student {
         int age;
         float weight;
         double beltLevel;
-        int score;
+        float score;
 
     public:
 
-       // Student(string n, int s) : name(n), score(s) {}
+
+
 /*
       /// Overloaded + operator inside Student class
-  Student operator+(const Competition& c) const {
-    int newScore = score + c.getScore();
-    return Student(name, newScore);
-  }
-*/
-      // Conversion operator to int
-      operator int() const {
-        return score;
+      Student operator+(const Competition& c) const {
+        int newScore = score + c.getScore();
+        return Student(name, newScore);
       }
+*/
+
+      // Conversion operator to int
+
 
         double promote(int n) const {
             return beltLevel + n;
@@ -104,6 +101,23 @@ class Student {
             return beltLevel;
         }
 
+        int setScore(int s) {
+            score = s;
+            return this->score;
+        }
+
+        float getScore() const {
+            return score;
+            }
+
+
+
+
+        operator int() const {
+        return score;
+      }
+
+
 
         /// Destructor
         ~Student() {};
@@ -113,7 +127,6 @@ class Student {
         float operator[](int);
         Student& operator++();
         Student operator++(int);
-        //Student operator+(const Student& obj);
         Student operator+(int);
         friend Student operator+(int, Student obj);
         Student& operator = (const Student&);
@@ -931,6 +944,7 @@ class Competition {
         int year;
         vector<string> winners;
         int* numWinners;
+        float score;
 
     public:
 
@@ -947,6 +961,12 @@ class Competition {
             year = y;
         winners = w;
         numWinners = z;
+        }
+
+
+        Competition(string s, int NewScore) {
+            score = NewScore;
+            name = s;
         }
 
 
@@ -985,6 +1005,16 @@ class Competition {
 
 
 
+        void setScore(float q) {
+            score = q;
+        }
+
+        int getScore() const {
+            return score;
+        }
+
+
+
     /// Functionality
     void addWinner(string winner) {
         winners.push_back(winner);
@@ -1005,6 +1035,8 @@ class Competition {
     operator int();
     operator int() const {return *this->numWinners;}
     Competition& operator+(const Competition& other);
+    Competition operator+(const Student& c) const;
+
 
 /*
     /// supraincarcarea operatorului + pentru adunarea cu un obiect Student
@@ -1020,8 +1052,15 @@ class Competition {
         result.setYear(result.getYear() + other.getYear()); // adaugare anul celeilalte competiții la anul curent
         return result;
     }
-    */
+ */
+
+
 };
+
+Competition Competition::operator+(const Student& c) const {
+        int newScore = score + c.getScore();
+        return Competition(name, newScore);
+      }
 
 Competition& Competition::operator++() {
     this->numWinners++;
@@ -1076,14 +1115,14 @@ Competition& Competition::operator=(const Competition& other) {
             return *this;
 }
 
-/*
+
 Competition& Competition::operator+(const Competition& other) {
     Competition result = *this;
     result.winners.insert(result.winners.end(), other.winners.begin(), other.winners.end());
     *(result.numWinners) += *other.numWinners;
     return result;
 }
-*/
+
 
 Competition& Competition::operator+(int num) {
             Competition result = *this;
@@ -1185,7 +1224,7 @@ int main()
 
                 students.push_back(Student(name, age, weight));
 
-                cout << "Student added successfully." << endl;
+                cout << endl << "Student added successfully." << endl;
                 break;
             }
 
@@ -1195,17 +1234,17 @@ int main()
                 cin >> id;
 
                 bool found = false;
-                for (vector<Student>::iterator it = students.begin(); it != students.end(); ++it) {
+                for (vector<Student>::iterator it = students.begin(); it != students.end(); it++) {
                     if (it->getStudentID() == id) {
                         students.erase(it);
                         found = true;
-                        cout << "Student removed successfully." << endl;
+                        cout << endl << "Student removed successfully." << endl;
                         break;
                     }
                 }
 
                 if (!found) {
-                    cout << "Student not found." << endl;
+                    cout << endl << "Student not found." << endl;
                 }
                 break;
             }
@@ -1224,7 +1263,7 @@ int main()
             case 4: {
                 cout << "Enter instructor name: ";
                 cin >> instructor;
-                cout << "Instructor set to " << instructor << endl;
+                cout << endl <<"Instructor set to " << instructor << endl;
                 break;
             }
 
