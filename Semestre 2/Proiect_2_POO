@@ -7,9 +7,18 @@
 
 using namespace std;
 
-class Student
-{
+class Person {
+protected:
+    string name;
+    int age;
+public:
+    Person(string n = "", int a = 0) : name(n), age(a) {}
+    virtual ~Person() {}
+    virtual string getName() const { return name; }
+    virtual int getAge() const { return age; }
+};
 
+class Student : public Person {
 private:
     static int contorId;
     const int student_id;
@@ -20,16 +29,8 @@ private:
     float score;
 
 public:
-    /*
-          /// Overloaded + operator inside Student class
-          Student operator+(const Competition& c) const {
-            int newScore = score + c.getScore();
-            return Student(name, newScore);
-          }
-    */
 
     // Conversion operator to int
-
     double promote(int n) const
     {
         return beltLevel + n;
@@ -61,6 +62,14 @@ public:
       }
       */
 
+      // implementarea metodelor virtuale pure din clasa "Person"
+      string getName() const override { return name; }
+    int getAge() const override { return age; }
+    float getWeight() const { return weight; }
+    double getBeltLevel() const { return beltLevel; }
+    float getScore() const { return score; }
+
+
     int getStudentID() const
     {
         return student_id;
@@ -71,34 +80,14 @@ public:
         name = n;
     }
 
-    string getName() const
-    {
-        return name;
-    }
-
     void setAge(int a)
     {
         age = a;
     }
 
-    int getAge() const
-    {
-        return age;
-    }
-
     void setWeight(float w)
     {
         weight = w;
-    }
-
-    const float getWeight() const
-    {
-        return this->weight;
-    }
-
-    double getBeltLevel() const
-    {
-        return beltLevel;
     }
 
     int setBeltLevel() const
@@ -110,11 +99,6 @@ public:
     {
         score = s;
         return this->score;
-    }
-
-    float getScore() const
-    {
-        return score;
     }
 
     operator int() const
@@ -289,9 +273,7 @@ istream &operator>>(istream &in, Student &obj)
     return in;
 }
 
-class Instructor
-{
-
+class Instructor : public Person {
 private:
     string name;
     int age;
@@ -334,15 +316,12 @@ public:
     ~Instructor(){};
 
     /// Getters and Setters
-    string getName() const
-    {
-        return name;
-    }
 
-    int getAge() const
-    {
-        return age;
-    }
+    // implementarea metodelor virtuale pure din clasa "Person"
+    int getAge() const override { return age; }
+    string getName() const override { return name; }
+    float getWeight() const { return 0.0; } // instructorii nu au greutate specifica
+
 
     const char *getStyle() const
     {
@@ -494,9 +473,7 @@ Instructor::operator int()
     return this->age;
 }
 
-class KarateClass
-{
-
+class KarateClass : public Student, public Instructor {
 private:
     static int contorId;
     Student *students;
@@ -565,25 +542,26 @@ public:
     }
 
     /// Add a new student to the class
-    void addStudent(Student s)
-    {
-        Student *new_students = new Student[num_students + 1];
-
-        for (int i = 0; i < num_students; i++)
-        {
-            new_students[i] = students[i];
+    virtual void addStudent(Student s) {
+        if (num_students == 0) {
+            students = new Student[1];
+            students[0] = s;
+            num_students++;
         }
-
-        new_students[num_students] = s;
-
-        num_students++;
-
-        delete[] students;
-        students = new_students;
+        else {
+            Student *temp = new Student[num_students + 1];
+            for (int i = 0; i < num_students; i++) {
+                temp[i] = students[i];
+            }
+            temp[num_students] = s;
+            num_students++;
+            delete[] students;
+            students = temp;
+        }
     }
 
     /// Remove a student from the class
-    void removeStudent(int student_id)
+    virtual void removeStudent(int student_id)
     {
         int index = -1;
         for (int i = 0; i < num_students; i++)
@@ -1109,9 +1087,7 @@ bool operator==(const Dojo &d1, const Dojo &d2)
     return true;
 }
 
-class Competition
-{
-
+class Competition : public KarateClass {
 private:
     string name;
     int year;
@@ -1411,108 +1387,6 @@ int main() {
     }
 */
 
-/*
-int main()
-{
-    vector<Student> students;
-    string instructor;
-
-    int choice;
-
-    do {
-        cout << "---------------------" << endl;
-        cout << "Karate Class Manager" << endl;
-        cout << "---------------------" << endl;
-        cout << "1. Add a student" << endl;
-        cout << "2. Remove a student" << endl;
-        cout << "3. Print all students" << endl;
-        cout << "4. Set instructor" << endl;
-        cout << "5. Quit" << endl;
-        cout << endl << "Enter your choice: ";
-        cin >> choice;
-        cout << endl;
-    system("CLS");
-        switch (choice) {
-            case 1: {
-                int id, age;
-                string name;
-                float weight;
-
-
-                cout << "Enter student ID: ";
-                cin >> id;
-
-                cout << "Enter student name: ";
-                cin >> name;
-
-                cout << "Enter student age: ";
-                cin >> age;
-
-                cout << "Enter student weight: ";
-                cin >> weight;
-
-                students.push_back(Student(name, age, weight));
-
-                cout << endl << "Student added successfully." << endl;
-                break;
-            }
-
-            case 2: {
-                int id;
-                cout << "Enter student ID: ";
-                cin >> id;
-
-                bool found = false;
-                for (vector<Student>::iterator it = students.begin(); it != students.end(); it++) {
-                    if (it->getStudentID() == id) {
-                        students.erase(it);
-                        found = true;
-                        cout << endl << "Student removed successfully." << endl;
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    cout << endl << "Student not found." << endl;
-                }
-                break;
-            }
-
-            case 3: {
-                if (students.size() == 0) {
-                    cout << "No students in the class." << endl;
-                } else {
-                    for (vector<Student>::iterator it = students.begin(); it != students.end(); ++it) {
-                        cout << *it << endl;
-                    }
-                }
-                break;
-            }
-
-            case 4: {
-                cout << "Enter instructor name: ";
-                cin >> instructor;
-                cout << endl <<"Instructor set to " << instructor << endl;
-                break;
-            }
-
-            case 5: {
-                cout << "Goodbye!" << endl;
-                break;
-            }
-
-            default: {
-                cout << "Invalid choice. Try again." << endl;
-                break;
-            }
-        }
-        cout << endl;
-
-    } while (choice != 5);
-
-    return 0;
-}
-*/
 
 int main()
 {
@@ -2139,7 +2013,7 @@ int main()
             cout << "Does the dojo have a tatami? (y/n): ";
             char choice;
             cin >> choice;
-            has_tatami = (choice == 'y' || choice == 'Y');
+            has_tatami = (choice == 'y' || choice == 'n');
 
             cout << "Enter dojo ID: ";
             cin >> dojo_id;
