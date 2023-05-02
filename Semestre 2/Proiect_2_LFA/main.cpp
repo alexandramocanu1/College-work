@@ -8,6 +8,7 @@ int vStari[100];
 
 int dfa(string a[100][100], int stareInitiala, int n, char litera)
 {
+    //vStari[100]={};
     int stareCurenta = stareInitiala;
 
     for (int j = 0; j < n; j++) {
@@ -16,14 +17,8 @@ int dfa(string a[100][100], int stareInitiala, int n, char litera)
         }
     }
 
-    if (find(vStari, vStari + n, stareCurenta) != vStari + n) {
-    vStari[stareCurenta] = 1;
-}
-
-
     return stareCurenta;
 }
-
 ///După ce șirul de caractere a fost parcurs complet, starea finală a DFA-ului este returnată.
 
 
@@ -62,16 +57,17 @@ int main()
     }
 
     for(int i=stareInitiala; i<stareInitiala+n; i++)
-        for(int j=stareInitiala; j<stareInitiala+n; j++){
-            e[i][j] = 1;
-            if(i != j){
-                if((find(stariFinale.begin(), stariFinale.end(), i) != stariFinale.end() &&
-                    find(stariFinale.begin(), stariFinale.end(), j) == stariFinale.end()) ||
-                   (find(stariFinale.begin(), stariFinale.end(), j) != stariFinale.end() &&
-                    find(stariFinale.begin(), stariFinale.end(), i) == stariFinale.end()))
-                        e[i][j] = 0;}
-            else e[i][j] = -1;
+    for(int j=stareInitiala; j<stareInitiala+n; j++){
+        e[i][j] = 1;
+        if(i != j){
+            if((find(stariFinale.begin(), stariFinale.end(), i) != stariFinale.end() &&
+                find(stariFinale.begin(), stariFinale.end(), j) == stariFinale.end()) ||
+               (find(stariFinale.begin(), stariFinale.end(), j) != stariFinale.end() &&
+                find(stariFinale.begin(), stariFinale.end(), i) == stariFinale.end()))
+                    e[i][j] = 0;}
+        else e[i][j] = -1;
     }
+
 
     int ok = 1;
     while(ok){
@@ -119,25 +115,15 @@ for(int i=0; i<stariNoi.size(); i++)
     }
     cout<<endl;
     cout<<"Alfabet: "<<alfabet<<endl;
-    cout << "Tabel de tranzitii: " << endl;
-    for (int i = 0; i < stariNoi.size(); i++) {
-        cout << stariNoi.at(i) << " ";
-        for (int j = 0; j < alfabet.length(); j++) {
-            int x = dfa(a, (stariNoi.at(i)[0] - '0'), n, alfabet[j]);
-            if (x < 0) {
-                cout << "-1 ";
-                }
-            else {
-            for (int k = 0; k < stariNoi.size(); k++)
-                if (stariNoi.at(k).find(to_string(x)) != -1) {
-                    cout << stariNoi.at(k);
-                    break;
-                }
-            cout << " ";
-        }
+
+    cout << "Tabel de tranzitii:\n";
+for(int i = stareInitiala; i < stareInitiala + m; i++) {
+    for(int j = stareInitiala; j < stareInitiala + m; j++) {
+        cout << e[i][j] << " ";
     }
-    cout << endl;
+    cout << "\n";
 }
+
 
     return 0;
 }
