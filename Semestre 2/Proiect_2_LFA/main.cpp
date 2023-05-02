@@ -8,7 +8,7 @@ int vStari[100];
 
 int dfa(string a[100][100], int stareInitiala, int n, char litera)
 {
-    //vStari[100]={};
+    vStari[100]={0};
     int stareCurenta = stareInitiala;
 
     for (int j = 0; j < n; j++) {
@@ -25,12 +25,13 @@ int dfa(string a[100][100], int stareInitiala, int n, char litera)
 int main()
 {
     ifstream fin("date.in");
-    int n, stareInitiala, e[100][100], nrFin, aux;
+    int n, stareInitiala, nrFin, aux;
     fin>>n;                       //numărul de stări ale automatului
     fin>>stareInitiala;           //starea inițială a automatului
     fin>>nrFin;                   // numărul de stări finale ale automatului
     string a[100][100], alfabet;  //alfabetul folosit de automat
     vector <int> stariFinale;     //vectorul care conține stările finale ale automatului
+    int  e[n+1][n+1];
 
     for(int i=0; i<nrFin; i++){
         fin>>aux;
@@ -59,12 +60,14 @@ int main()
     for(int i=stareInitiala; i<stareInitiala+n; i++)
     for(int j=stareInitiala; j<stareInitiala+n; j++){
         e[i][j] = 1;
-        if(i != j){
+        if(i != j)
+            {
             if((find(stariFinale.begin(), stariFinale.end(), i) != stariFinale.end() &&
                 find(stariFinale.begin(), stariFinale.end(), j) == stariFinale.end()) ||
                (find(stariFinale.begin(), stariFinale.end(), j) != stariFinale.end() &&
                 find(stariFinale.begin(), stariFinale.end(), i) == stariFinale.end()))
-                    e[i][j] = 0;}
+                    e[i][j] = 0;
+        }
         else e[i][j] = -1;
     }
 
@@ -89,22 +92,50 @@ int main()
                 }
         }
 
-    vector <string> stariNoi;
-    int m=0;
-    for(int j=stareInitiala; j<stareInitiala+n; j++){
-        if(!vStari[j]){
-            stariNoi.push_back(to_string(j));        //vectorul care va conține noile stări ale automatului minimizat
-            m++;                                    //numărul de stări al automatului minimizat
-            vStari[j]++;
+    vector<string> stariNoi;
 
-        for(int i=j+1; i<stareInitiala + n; i++)
+int m = 0;
+
+for(int j = stareInitiala; j < stareInitiala + n; j++){
+    if(!vStari[j]){
+        stariNoi.push_back(to_string(j)); //vectorul care va conține noile stări ale automatului minimizat
+        m++; //numărul de stări al automatului minimizat
+        vStari[j]++;
+
+        for(int i = j + 1; i < stareInitiala + n; i++){
             if(e[i][j] == 1){
-                stariNoi.back() += (to_string(i));
+                stariNoi.back() += to_string(i);
                 vStari[i]++;
             }
         }
     }
+}
+vector<int> stariFinaleNoi;
+for(int i=0; i<stariNoi.size(); i++){
+    bool isFinal = false;
+    for(int j=0; j<stariNoi[i].length(); j++){
+        int stare = stariNoi[i][j] - '0';
+        if(find(stariFinale.begin(), stariFinale.end(), stare) != stariFinale.end()){
+            isFinal = true;
+            break;
+        }
+    }
+    if(isFinal) {
+        stariFinaleNoi.push_back(i);
+    }
+}
 
+cout<<"Nr. stari: "<<m<<endl<<"Stare initiala: "<<stareInitiala<<endl;
+cout<<"Nr. stari finale: "<<stariFinaleNoi.size()<<endl;
+cout<<"Stari finale: ";
+for(int i=0; i<stariNoi.size(); i++) {
+    if (any_of(stariFinaleNoi.begin(), stariFinaleNoi.end(), [i](int x) { return x == i; })) {
+        cout<<i<<" ";
+    }
+}
+
+
+/*
     cout<<"Nr. stari: "<<m<<endl<<"Stare initiala: "<<stareInitiala<<endl;
     cout<<"Nr. stari finale: "<<stariFinale.size()<<endl;
     cout<<"Stari finale: ";
@@ -113,6 +144,9 @@ for(int i=0; i<stariNoi.size(); i++)
     {
         cout << stariNoi.at(i) << " ";
     }
+    */
+
+
     cout<<endl;
     cout<<"Alfabet: "<<alfabet<<endl;
 
@@ -123,7 +157,54 @@ for(int i = stareInitiala; i < stareInitiala + m; i++) {
     }
     cout << "\n";
 }
+/*
+    cout << "Tabel de tranzitii:\n";
+cout << "   |";
+for (int i = 0; i < alfabet.length(); i++) {
+    cout << "  " << alfabet[i] << " |";
+}
+cout << "\n";
+cout << "---+";
+for (int i = 0; i < alfabet.length(); i++) {
+    cout << "----+";
+}
+cout << "\n";
 
+for (int i = stareInitiala; i < stareInitiala + m; i++) {
+    if (binary_search(stariFinale.begin(), stariFinale.end(), i)) {
+        cout << " *" << i << "|";
+    } else {
+        cout << "  " << i << "|";
+    }
+
+    for (int j = stareInitiala; j < stareInitiala + n; j++) {
+        if (e[i][j] == 1) {
+            cout << " " << j << " |";
+        } else {
+            cout << "   |";
+        }
+    }
+    cout << "\n---+";
+    for (int i = 0; i < alfabet.length(); i++) {
+        cout << "----+";
+    }
+    cout << "\n";
+}
+*/
+/*
+for(int i = stareInitiala; i < stareInitiala + m; i++) {
+    for(int j = stareInitiala; j < stareInitiala + m; j++) {
+        if(e[i][j] == -1) {
+            cout << "x\t";
+        } else if(e[i][j] == 0) {
+            cout << "-\t";
+        } else {
+            cout << stariNoi.at(j - stareInitiala) << "\t";
+        }
+    }
+    cout << endl;
+}
+*/
 
     return 0;
 }
