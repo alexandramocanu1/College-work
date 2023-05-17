@@ -80,7 +80,6 @@ CREATE TABLE CERERE_ADOPTIE (
 );
 
 
-
 CREATE TABLE ANIMAL (
     ID_ANIMAL INT PRIMARY KEY,
     NUME VARCHAR(255),
@@ -207,3 +206,69 @@ LEFT JOIN CONTRACT c ON an.ID_CONTRACT = c.NUMAR
 LEFT JOIN DIRECTOR d ON d.ID_CONTRACT = c.NUMAR
 LEFT JOIN SECTIE_SECTOR ss ON an.ID_ANGAJAT = ss.ID_ANGAJAT
 LEFT JOIN SECTIE s ON ss.ID_SECTIE = s.ID_SECTIE;
+
+-- Cererea 14: Crearea unei vizualizări complexe
+CREATE VIEW v_angajati_sectii AS
+SELECT an.NUME, an.PRENUME, an.ADRESA, s.NUME AS NUME_SECTIE
+FROM ANGAJAT an
+LEFT JOIN CONTRACT c ON an.ID_CONTRACT = c.NUMAR
+LEFT JOIN DIRECTOR d ON d.ID_CONTRACT = c.NUMAR
+LEFT JOIN SECTIE_SECTOR ss ON an.ID_ANGAJAT = ss.ID_ANGAJAT
+LEFT JOIN SECTIE s ON ss.ID_SECTIE = s.ID_SECTIE;
+
+-- Cererea 15: Cerere cu outer-join pe minim 4 tabele, cerere cu operația de division și cerere cu analiza top-n
+-- Exemplu de cerere cu outer-join pe minim 4 tabele
+SELECT a.NUME, c.DENUMIRE_PRODUS, h.CANTITATE
+FROM ANIMAL a
+LEFT JOIN CARTE_DE_SANATATE cs ON a.ID_ANIMAL = cs.ID_ANIMAL
+LEFT JOIN CONSULTATIE co ON a.ID_ANIMAL = co.ID_ANIMAL
+LEFT JOIN HRANA h ON co.DATA = h.DATA
+LEFT JOIN CUSCA c ON a.ID_CUSCA = c.ID_CUSCA;
+
+-- Exemplu de cerere cu operația de division
+SELECT a.NUME, a.RASA
+FROM ANIMAL a
+WHERE NOT EXISTS (
+    SELECT *
+    FROM CARTE_DE_SANATATE cs
+    WHERE a.ID_ANIMAL = cs.ID_ANIMAL
+    AND cs.VACCINURI != 'Rabie'
+);
+
+-- Exemplu de cerere cu analiza top-n
+SELECT NUME, VARSTA
+FROM ANIMAL
+ORDER BY VARSTA DESC
+FETCH FIRST 5 ROWS ONLY;
+
+-- Cererea 16: Optimizarea unei cereri
+-- Cererea înainte de optimizare
+SELECT a.NUME, a.PRENUME, s.NUME AS NUME_SECTIE
+FROM ANGAJAT a, SECTIE s, CONTRACT c
+WHERE a.ID_CONTRACT = c.NUMAR
+AND c.ID_CONTRACT = d.ID_CONTRACT
+AND a.ID_ANGAJAT = ss.ID_ANGAJAT
+AND ss.ID_SECTIE = s.ID_SECTIE
+AND a.PRENUME = 'John';
+
+-- Cererea după optimizare
+SELECT a.NUME, a.PRENUME, s.NUME AS NUME_SECTIE
+FROM ANGAJAT a
+JOIN CONTRACT c ON a.ID_CONTRACT = c.NUMAR
+JOIN DIRECTOR d ON c.ID_CONTRACT = d.ID_CONTRACT
+JOIN SECTIE_SECTOR ss ON a.ID_ANGAJAT = ss.ID_ANGAJAT
+JOIN SECTIE s ON ss.ID_SECTIE = s.ID_SECTIE
+WHERE a.PRENUME = 'John';
+
+-- Cererea 17a: Realizarea normalizării BCNF, FN4, FN5
+-- În baza de date existentă, tabelele și constrângerile de integritate nu sunt suficiente pentru a determina normalizarea BCNF, FN4 și FN5. Aceste etape necesită analiza detaliată a dependențelor funcționale și a formelor normale.
+
+-- Cererea 17b: Aplicarea denormalizării, justificând necesitatea acesteia
+-- Exemplu de denormalizare prin adăugarea unei coloane redundante în tabelul ANIMAL
+ALTER TABLE ANIMAL ADD COLUMN NUME_VETERINAR VARCHAR(255);
+UPDATE ANIMAL a
+SET NUME_VETERINAR = (
+    SELECT v.NUME
+    FROM VETERINAR v
+    WHERE v.CNP = a.ID_VETERINAR
+);
