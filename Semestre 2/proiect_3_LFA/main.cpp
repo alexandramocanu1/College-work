@@ -62,17 +62,20 @@ bool accepts(const vector<Rule>& grammar, const string& symbol, const string& wo
     for (const Rule& rule : grammar) {
         if (rule.lhs == symbol) {
             for (const vector<string>& production : rule.rhs) {
-                size_t i = 0;
-                bool match = true;
-                for (const string& prodSymbol : production) {
-                    if (i >= word.length() || (prodSymbol != "lambda" && word.substr(i, prodSymbol.length()) != prodSymbol)) {
-                        match = false;
-                        break;
-                    }
-                    i += prodSymbol.length();
-                }
-                if (match && accepts(grammar, production.back(), word.substr(i))) {
+                if (production.size() == 1 && production[0] == word) {
                     return true;
+                } else if (word[0] == production[0][0]) {
+                    string remaining_word = word.substr(1);
+                    bool accepted = true;
+                    for (size_t i = 1; i < production.size(); ++i) {
+                        if (!accepts(grammar, production[i], remaining_word)) {
+                            accepted = false;
+                            break;
+                        }
+                    }
+                    if (accepted) {
+                        return true;
+                    }
                 }
             }
         }
@@ -80,6 +83,7 @@ bool accepts(const vector<Rule>& grammar, const string& symbol, const string& wo
 
     return false;
 }
+
 
 
 vector<pair<string, bool>> check_words(const vector<Rule>& grammar, const vector<string>& words) {
