@@ -1,54 +1,59 @@
--- Inserare înregistrări în tabele
-INSERT INTO CONTRACT (NUMAR, DATA_EMITERE, DURATA, TIP, id_angajat)
-VALUES (1, '2022-01-01', 12, 'Contract de muncă', 1);
+-- Tabela CONTRACT
+INSERT INTO CONTRACT (NUMAR, DATA_EMITERE, DURATA, TIP, id_magazin, id_farmacie, id_clinica)
+VALUES (1, TO_DATE('2023-01-01', 'YYYY-MM-DD'), 12, 'Standard', 1, 1, 1);
 
+INSERT INTO CONTRACT (NUMAR, DATA_EMITERE, DURATA, TIP, id_magazin, id_farmacie, id_clinica)
+VALUES (2, TO_DATE('2023-02-01', 'YYYY-MM-DD'), 6, 'Premium', 2, 2, 2);
+
+
+-- Tabela ANGAJAT
 INSERT INTO ANGAJAT (ID_ANGAJAT, NUME, PRENUME, CNP, ADRESA, TELEFON, EMAIL, ID_CONTRACT)
-VALUES (1, 'Popescu', 'Ion', '1234567890123', 'Str. Libertății, Nr. 10', '0721000000', 'popescu.ion@example.com', 1);
+VALUES (1, 'Popescu', 'Ion', '1234567890123', 'Str. Muncii, Nr. 1', '123456789', 'popescu.ion@example.com', 1),
+       (2, 'Ionescu', 'Maria', '9876543210987', 'Str. Victoriei, Nr. 2', '987654321', 'ionescu.maria@example.com', 2),
+       (3, 'Dumitrescu', 'Ana', '4567890123456', 'Str. Libertății, Nr. 3', '456789012', 'dumitrescu.ana@example.com', 3),
+       (4, 'Constantinescu', 'Mihai', '7890123456789', 'Str. Independenței, Nr. 4', '789012345', 'constantinescu.mihai@example.com', 4),
+       (5, 'Georgescu', 'Elena', '2345678901234', 'Str. Revoluției, Nr. 5', '234567890', 'georgescu.elena@example.com', 5);
 
--- Continuă cu inserarea de înregistrări în celelalte tabele folosind aceeași sintaxă.
 
--- Ștergere înregistrări din tabele
-DELETE FROM CONTRACT WHERE NUMAR = 1;
+-- Tabela DIRECTOR
+INSERT INTO DIRECTOR (ID_DIRECTOR, ID_CONTRACT, ID_ANGAJAT)
+VALUES (1, 1, 1);
 
-DELETE FROM ANGAJAT WHERE ID_ANGAJAT = 1;
+INSERT INTO DIRECTOR (ID_DIRECTOR, ID_CONTRACT, ID_ANGAJAT)
+VALUES (2, 2, 2);
 
--- Inserare înregistrări în tabele
-INSERT INTO CONTRACT (NUMAR, DATA_EMITERE, DURATA, TIP, id_angajat)
-VALUES (1, '2022-01-01', 12, 'Contract de muncă', 1);
-
-INSERT INTO ANGAJAT (ID_ANGAJAT, NUME, PRENUME, CNP, ADRESA, TELEFON, EMAIL, ID_CONTRACT)
-VALUES (1, 'Popescu', 'Ion', '1234567890123', 'Str. Libertății, Nr. 10', '0721000000', 'popescu.ion@example.com', 1);
-
--- Continuă cu inserarea de înregistrări în celelalte tabele folosind aceeași sintaxă.
-
--- Ștergere înregistrări din tabele
-DELETE FROM CONTRACT WHERE NUMAR = 1;
-
-DELETE FROM ANGAJAT WHERE ID_ANGAJAT = 1;
-
--- Inserare înregistrări în tabele
-INSERT INTO DIRECTOR (ID_DIRECTOR, ID_CONTRACT)
-VALUES (1, 1);
-
-INSERT INTO SECTIE (ID_SECTIE, NUME)
-VALUES (1, 'Cardiologie');
+-- Tabela SECTOR --
+INSERT INTO SECTOR (ID_SECTOR, TIP_NEVOIE, NUMAR_LOCURI)
+VALUES (1, 'Tip 1', 10);
 
 INSERT INTO SECTOR (ID_SECTOR, TIP_NEVOIE, NUMAR_LOCURI)
-VALUES (1, 'Urgențe', 10);
+VALUES (2, 'Tip 2', 5);
 
+
+-- Tabela SECTIE_SECTOR --
 INSERT INTO SECTIE_SECTOR (ID_SECTIE, ID_SECTOR)
 VALUES (1, 1);
 
-INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM)
-VALUES (1, 'Farmacia XYZ', '0211111111', 'Luni-Vineri: 9:00-17:00');
+-- Tabela SECTIE 
+INSERT INTO SECTIE (ID_SECTIE, NUME, ID_CUSCA)
+VALUES (1, 'Sectie 1', 1);
 
-INSERT INTO MEDICAMENT (NUMAR, DENUMIRE_PRODUS, CANTITATE, ID_FARMACIE)
-VALUES (1, 'Paracetamol', 100, 1);
+-- Tabela FARMACIE 
+INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM, NUMAR)
+VALUES (1, 'Farmacie 1', '123456789', 'Luni-Vineri', 100);
 
+-- Tabela MEDICAMENT  -- 
+INSERT INTO MEDICAMENT (NUMAR, DENUMIRE_PRODUS, CANTITATE)
+VALUES (1, 'Medicament 1', 50);
+
+-- Tabela VIZITATOR --
 INSERT INTO VIZITATOR (CNP, NUME, PRENUME, TELEFON, EMAIL)
-VALUES ('1234567890123', 'Ionescu', 'Maria', '0722000000', 'ionescu.maria@example.com');
+VALUES ('1111111111111', 'Vizitator 1', 'Prenume', '987654321', 'vizitator1@example.com');
 
--- Continuă cu inserarea de înregistrări în celelalte tabele folosind aceeași sintaxă.
+-- Tabela CERERE_ADOPTIE
+INSERT INTO CERERE_ADOPTIE (SERIE, ID_ANIMAL, ID_VIZITATOR, DATA)
+VALUES ('Seria 1', 1, '1111111111111', '2023-03-01');
+
 
 -- Ștergere înregistrări din tabele
 DELETE FROM DIRECTOR WHERE ID_DIRECTOR = 1;
