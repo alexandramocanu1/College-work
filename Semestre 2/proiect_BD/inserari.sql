@@ -1,3 +1,4 @@
+
 -- Tabela CONTRACT
 INSERT INTO CONTRACT (NUMAR, DATA_EMITERE, DURATA, TIP, id_magazin, id_farmacie, id_clinica)
 VALUES (1, TO_DATE('2023-01-01', 'YYYY-MM-DD'), 12, 'Standard', 1, 1, 1);
@@ -10,9 +11,9 @@ VALUES (2, TO_DATE('2023-02-01', 'YYYY-MM-DD'), 6, 'Premium', 2, 2, 2);
 INSERT INTO ANGAJAT (ID_ANGAJAT, NUME, PRENUME, CNP, ADRESA, TELEFON, EMAIL, ID_CONTRACT)
 VALUES (1, 'Popescu', 'Ion', '1234567890123', 'Str. Muncii, Nr. 1', '123456789', 'popescu.ion@example.com', 1),
        (2, 'Ionescu', 'Maria', '9876543210987', 'Str. Victoriei, Nr. 2', '987654321', 'ionescu.maria@example.com', 2),
-       (3, 'Dumitrescu', 'Ana', '4567890123456', 'Str. Libertății, Nr. 3', '456789012', 'dumitrescu.ana@example.com', 3),
-       (4, 'Constantinescu', 'Mihai', '7890123456789', 'Str. Independenței, Nr. 4', '789012345', 'constantinescu.mihai@example.com', 4),
-       (5, 'Georgescu', 'Elena', '2345678901234', 'Str. Revoluției, Nr. 5', '234567890', 'georgescu.elena@example.com', 5);
+       (3, 'Dumitrescu', 'Ana', '4567890123456', 'Str. Libert??ii, Nr. 3', '456789012', 'dumitrescu.ana@example.com', 3),
+       (4, 'Constantinescu', 'Mihai', '7890123456789', 'Str. Independen?ei, Nr. 4', '789012345', 'constantinescu.mihai@example.com', 4),
+       (5, 'Georgescu', 'Elena', '2345678901234', 'Str. Revolu?iei, Nr. 5', '234567890', 'georgescu.elena@example.com', 5);
 
 
 -- Tabela DIRECTOR
@@ -21,6 +22,7 @@ VALUES (1, 1, 1);
 
 INSERT INTO DIRECTOR (ID_DIRECTOR, ID_CONTRACT, ID_ANGAJAT)
 VALUES (2, 2, 2);
+
 
 -- Tabela SECTOR --
 INSERT INTO SECTOR (ID_SECTOR, TIP_NEVOIE, NUMAR_LOCURI)
@@ -34,25 +36,51 @@ VALUES (2, 'Tip 2', 5);
 INSERT INTO SECTIE_SECTOR (ID_SECTIE, ID_SECTOR)
 VALUES (1, 1);
 
--- Tabela SECTIE 
+-- Tabela SECTIE --
 INSERT INTO SECTIE (ID_SECTIE, NUME, ID_CUSCA)
 VALUES (1, 'Sectie 1', 1);
 
--- Tabela FARMACIE 
+-- Tabela FARMACIE --
+
 INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM, NUMAR)
-VALUES (1, 'Farmacie 1', '123456789', 'Luni-Vineri', 100);
+VALUES (1, 'Pharmacy 1', '123-456-7890', '9 AM - 6 PM', 1);
+
+INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM, NUMAR)
+VALUES (2, 'Pharmacy 2', '123-456-7899', '9 AM - 6 PM', 1);
+
+INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM, NUMAR)
+VALUES (3, 'Pharmacy 3', '123-456-7889', '9 AM - 6 PM', 1);
+
 
 -- Tabela MEDICAMENT  -- 
 INSERT INTO MEDICAMENT (NUMAR, DENUMIRE_PRODUS, CANTITATE)
 VALUES (1, 'Medicament 1', 50);
 
--- Tabela VIZITATOR --
-INSERT INTO VIZITATOR (CNP, NUME, PRENUME, TELEFON, EMAIL)
-VALUES ('1111111111111', 'Vizitator 1', 'Prenume', '987654321', 'vizitator1@example.com');
+-- Tabela VIZITATOR -- 
 
--- Tabela CERERE_ADOPTIE
+INSERT INTO VIZITATOR (CNP, NUME, PRENUME, TELEFON, EMAIL)
+VALUES ('1234567890123', 'Jane', 'Doe', '987-654-3210', 'jane@example.com');
+
+INSERT INTO VIZITATOR (CNP, NUME, PRENUME, TELEFON, EMAIL)
+VALUES ('1234567890124', 'Jany', 'Denice', '987-654-3215', 'jany@gmail.com');
+
+--Tabela CUSCA --
+
+INSERT INTO CUSCA (ID_CUSCA, NUMAR_LOCURI)
+VALUES (1, 5);
+
+INSERT INTO CUSCA (ID_CUSCA, NUMAR_LOCURI)
+VALUES (2, 3);
+
+-- Tabela CERERE_ADOPTIE --
+
 INSERT INTO CERERE_ADOPTIE (SERIE, ID_ANIMAL, ID_VIZITATOR, DATA)
-VALUES ('Seria 1', 1, '1111111111111', '2023-03-01');
+VALUES ('ABC123', 1, '1234567890123', TO_DATE('2023-01-01', 'YYYY-MM-DD'));
+
+-- Tabela ANIMAL 
+
+INSERT INTO ANIMAL (ID_ANIMAL, NUME, RASA, VARSTA, SEX, DATA_SOSIRE, ID_CUSCA, ID_VETERINAR)
+VALUES (1, 'Caine', 'bulldog', 3, 'Male', TO_DATE('2023-01-01', 'YYYY-MM-DD'), 1, '1');
 
 
 -- Ștergere înregistrări din tabele
