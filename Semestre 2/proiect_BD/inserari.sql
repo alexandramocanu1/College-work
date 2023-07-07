@@ -1,11 +1,11 @@
 
 -- Tabela CONTRACT
 INSERT INTO CONTRACT (NUMAR, DATA_EMITERE, DURATA, TIP, id_magazin, id_farmacie, id_clinica)
-VALUES (1, TO_DATE('2023-01-01', 'YYYY-MM-DD'), 12, 'Standard', 1, 1, 1);
-
-INSERT INTO CONTRACT (NUMAR, DATA_EMITERE, DURATA, TIP, id_magazin, id_farmacie, id_clinica)
-VALUES (2, TO_DATE('2023-02-01', 'YYYY-MM-DD'), 6, 'Premium', 2, 2, 2);
-
+VALUES (1, TO_DATE('2023-01-01', 'YYYY-MM-DD'), 12, 'Standard', 1, 1, 1),
+VALUES (2, TO_DATE('2023-02-01', 'YYYY-MM-DD'), 6, 'Premium', 2, 2, 2),
+VALUES (3, TO_DATE('2023-01-01', 'YYYY-MM-DD'), 3, 'Standard', 3, 3, 3),
+VALUES (4, TO_DATE('2023-01-01', 'YYYY-MM-DD'), 10, 'Premium', 4, 4, 4),
+VALUES (5, TO_DATE('2023-01-01', 'YYYY-MM-DD'), 12, 'Standard', 5, 5, 5);
 
 -- Tabela ANGAJAT
 INSERT INTO ANGAJAT (ID_ANGAJAT, NUME, PRENUME, CNP, ADRESA, TELEFON, EMAIL, ID_CONTRACT)
