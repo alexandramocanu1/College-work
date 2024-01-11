@@ -239,8 +239,6 @@ VALUES (5, 'Calmex', 50);
 -- Tabela FARMACIE --
 INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM, NUMAR)
 VALUES (1, 'ANIMAX VET SRL', '33522396', '9 AM - 6 PM', 1);
---INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM, NUMAR)
---VALUES (1, 'ANIMAX VET SRL', '33522396', '9 AM - 6 PM', 2);
 INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM, NUMAR)
 VALUES (2, 'PET BOUTIQUE', '38440980', '10 AM - 8 PM', 1);
 INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM, NUMAR)
@@ -254,8 +252,6 @@ VALUES (5, 'PETMART ONLINE SRL', '32167601', '24/7', 1);
 -- Tabela MAGAZIN --
 INSERT INTO MAGAZIN (ID_MAGAZIN, ID_CONTRACT, NUME, TELEFON, PROGRAM)
 VALUES (1, 1, 'Animax – Pet Store', '987-654-3456', '10 AM - 8 PM');
---INSERT INTO MAGAZIN (ID_MAGAZIN, ID_CONTRACT, NUME, TELEFON, PROGRAM)
---VALUES (1, 2, 'PetMart', '987-654-3210', '10 AM - 8 PM');
 INSERT INTO MAGAZIN (ID_MAGAZIN, ID_CONTRACT, NUME, TELEFON, PROGRAM)
 VALUES (2, 2, 'PetMart', '865-153-3210', '9 AM - 4 PM');
 INSERT INTO MAGAZIN (ID_MAGAZIN, ID_CONTRACT, NUME, TELEFON, PROGRAM)
@@ -408,235 +404,207 @@ INSERT INTO DIRECTOR (ID_DIRECTOR, ID_CONTRACT, ID_ANGAJAT)
 VALUES (1, 105, 5);
 
 
+
 -- cerinta 6
-CREATE OR REPLACE PROCEDURE actualizare_hrană(
+
+CREATE OR REPLACE PROCEDURE actualizare_hrana(
     p_id_animal IN NUMBER,
     p_nume_hrana IN VARCHAR2,
     p_cantitate_aditionala IN NUMBER
 ) AS
-    TYPE NumereAnimale IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
-    TYPE HranaCantitate IS TABLE OF NUMBER INDEX BY VARCHAR2(255);
-
-    -- Declararea colecțiilor pentru a stoca id-urile animalelor și hrana necesară
-    animale_id NumereAnimale;
-    hrana_necesara HranaCantitate;
-
-    -- Variabila pentru a stoca cantitatea de hrana actualizată
+    -- Variabila pentru a stoca cantitatea de hrana actualizata
     cantitate_actualizata NUMBER;
 
 BEGIN
-    -- Inițializarea colecțiilor cu valorile furnizate ca parametri
-    animale_id(1) := p_id_animal;
-    hrana_necesara(p_nume_hrana) := p_cantitate_aditionala;
+    -- Actualizarea cantității de hrana
+    UPDATE HRANA
+    SET CANTITATE = CANTITATE + p_cantitate_aditionala
+    WHERE ID_MAGAZIN = p_id_animal AND DENUMIRE_PRODUS = p_nume_hrana;
 
-    -- Parcurgerea colecției și actualizarea cantității de hrana
-    FOR i IN 1..animale_id.COUNT LOOP
-        SELECT CANTITATE + hrana_necesara.EXISTS(p_nume_hrana) * hrana_necesara(p_nume_hrana)
-        INTO cantitate_actualizata
-        FROM HRANA
-        WHERE NUMAR = animale_id(i);
+    cantitate_actualizata := SQL%ROWCOUNT; -- Numărul de înregistrări actualizate
 
-        -- Actualizarea cantității de hrana
-        UPDATE HRANA
-        SET CANTITATE = cantitate_actualizata
-        WHERE NUMAR = animale_id(i) AND DENUMIRE_PRODUS = p_nume_hrana;
-
+    IF cantitate_actualizata > 0 THEN
         COMMIT;
-    END LOOP;
+        DBMS_OUTPUT.PUT_LINE('Cantitatea de hrana pentru animalul cu ID ' || p_id_animal || ' și hrana ' || p_nume_hrana || ' a fost actualizată cu ' || p_cantitate_aditionala || ' unități.');
+    ELSE
+        -- Gestionarea cazului în care nu există înregistrare pentru actualizare
+        DBMS_OUTPUT.PUT_LINE('Nu s-au găsit date pentru ID-ul animalului ' || p_id_animal || ' și hrana ' || p_nume_hrana);
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Gestionarea altor erori
+        DBMS_OUTPUT.PUT_LINE('A apărut o eroare: ' || SQLERRM);
 END;
 /
 
+
+--set serveroutput on;
+
+
+-- apelarea procedurii
+
+DECLARE
+    v_id_animal NUMBER := 1; -- ID-ul animalului pentru care vrei să actualizezi hrana
+    v_nume_hrana VARCHAR2(255) := 'Hrana uscata pentru caini Pedigree Adult'; -- Numele hranei
+    v_cantitate_aditionala NUMBER := 2; -- Cantitatea adițională de hrana
 BEGIN
-    actualizare_hrană(1, 'Hrana uscata pentru caini Pedigree Adult', 20);
-    actualizare_hrană(3, 'Hrana umeda pentru caini Petkult Adult cu rata', 15);
+    actualizare_hrana(
+        p_id_animal => v_id_animal,
+        p_nume_hrana => v_nume_hrana,
+        p_cantitate_aditionala => v_cantitate_aditionala
+    );
 END;
 /
+
 
 -- cerinta 7
 
--- Crearea cursorului parametrizat
-CREATE OR REPLACE FUNCTION cursor_parametrizat(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR IS
-    v_cursor SYS_REFCURSOR;
+CREATE OR REPLACE PROCEDURE AfisareAnimaleAdoptate(
+    dataAdoptie IN DATE
+) AS
+    -- Declaram cursorul pentru animale adoptate
+    CURSOR curAnimaleAdoptate IS
+        SELECT ca.SERIE, a.NUME, a.RASA, a.VARSTA, a.SEX, a.DATA_SOSIRE, v.NUME || ' ' || v.PRENUME AS NUME_VETERINAR, a.ID_ANIMAL
+        FROM CERERE_ADOPTIE ca
+        JOIN ANIMAL a ON ca.ID_ANIMAL = a.ID_ANIMAL
+        JOIN VETERINAR v ON a.ID_VETERINAR = v.CNP
+        WHERE ca.DATA = dataAdoptie;
+
+    -- Declaram cursorul parametrizat pentru informatii suplimentare
+    CURSOR curInformatiiSuplimentare(p_ID_ANIMAL INT) IS
+        SELECT cs.VACCINURI, cs.DATA_NASTERE, cs.ANTECEDENTE_MEDICALE
+        FROM CARTE_DE_SANATATE cs
+        WHERE cs.ID_ANIMAL = p_ID_ANIMAL;
+
+    -- Declaram variabila pentru ID_ANIMAL
+    v_ID_ANIMAL INT;
+
 BEGIN
-    OPEN v_cursor FOR
-    SELECT NUMAR, DENUMIRE_PRODUS, CANTITATE
-    FROM HRANA
-    WHERE DENUMIRE_PRODUS = p_nume_hrana;
+    -- Parcurgem animalele adoptate
+    FOR animalAdoptat IN curAnimaleAdoptate LOOP
+        -- Salvam ID_ANIMAL in variabila
+        v_ID_ANIMAL := animalAdoptat.ID_ANIMAL;
 
-    RETURN v_cursor;
-END;
-/
+        DBMS_OUTPUT.PUT_LINE('Serie: ' || animalAdoptat.SERIE);
+        DBMS_OUTPUT.PUT_LINE('Nume: ' || animalAdoptat.NUME);
+        DBMS_OUTPUT.PUT_LINE('Rasa: ' || animalAdoptat.RASA);
+        DBMS_OUTPUT.PUT_LINE('Varsta: ' || animalAdoptat.VARSTA);
+        DBMS_OUTPUT.PUT_LINE('Sex: ' || animalAdoptat.SEX);
+        DBMS_OUTPUT.PUT_LINE('Data sosire: ' || TO_CHAR(animalAdoptat.DATA_SOSIRE, 'YYYY-MM-DD'));
+        DBMS_OUTPUT.PUT_LINE('Veterinar: ' || animalAdoptat.NUME_VETERINAR);
 
--- Crearea cursorului dependent
-CREATE OR REPLACE FUNCTION cursor_dependent(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR IS
-    v_cursor SYS_REFCURSOR;
-    v_numar NUMBER;
-
-BEGIN
-    -- Utilizarea cursorului parametrizat pentru a obține detalii despre hrana specificată
-    OPEN v_cursor FOR
-    SELECT NUMAR
-    FROM TABLE(cursor_parametrizat(p_nume_hrana));
-
-    -- Parcurgerea cursorului dependent pentru a obține informații despre animale
-    LOOP
-        FETCH v_cursor INTO v_numar;
-        EXIT WHEN v_cursor%NOTFOUND;
-
-        -- Selectarea informațiilor despre animalele care au nevoie de hrana specificată
-        FOR animal IN (SELECT A.NUME, A.RASA, A.VARSTA, A.SEX, V.NUME || ' ' || V.PRENUME AS VETERINAR
-                        FROM ANIMAL A
-                        JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP
-                        WHERE A.ID_ANIMAL = v_numar) LOOP
-            DBMS_OUTPUT.PUT_LINE('Animal: ' || animal.NUME || ', Rasa: ' || animal.RASA ||
-                                 ', Varsta: ' || animal.VARSTA || ', Sex: ' || animal.SEX ||
-                                 ', Veterinar: ' || animal.VETERINAR);
+        -- Obtinem informatii suplimentare folosind cursorul parametrizat
+        FOR infoSuplimentare IN curInformatiiSuplimentare(v_ID_ANIMAL) LOOP
+            DBMS_OUTPUT.PUT_LINE('Vaccinuri: ' || infoSuplimentare.VACCINURI);
+            DBMS_OUTPUT.PUT_LINE('Data nasterii: ' || TO_CHAR(infoSuplimentare.DATA_NASTERE, 'YYYY-MM-DD'));
+            DBMS_OUTPUT.PUT_LINE('Antecedente medicale: ' || infoSuplimentare.ANTECEDENTE_MEDICALE);
         END LOOP;
+
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------');
     END LOOP;
-
-    CLOSE v_cursor;
-    RETURN v_cursor;
-END;
+END AfisareAnimaleAdoptate;
 /
 
--- Apelul subprogramului
-DECLARE
-    v_result SYS_REFCURSOR;
+
+-- apelare 
+    
 BEGIN
-    v_result := cursor_dependent('Hrana uscata pentru caini Pedigree Adult');
-    -- Puteți utiliza rezultatul pentru prelucrări suplimentare sau afișare
+    AfisareAnimaleAdoptate(TO_DATE('2023-08-02', 'YYYY-MM-DD'));
 END;
 /
+
 
 -- cerinta 8
 
--- Crearea unui subprogram stocat independent de tip procedură care să actualizeze cantitatea de hrană pentru animalele specificate.
 
-CREATE OR REPLACE PROCEDURE actualizare_hrană(
-    p_id_animal IN NUMBER,
-    p_nume_hrana IN VARCHAR2,
-    p_cantitate_aditionala IN NUMBER
-) AS
-    TYPE NumereAnimale IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
-    TYPE HranaCantitate IS TABLE OF NUMBER INDEX BY VARCHAR2(255);
-
-    -- Declararea colecțiilor pentru a stoca id-urile animalelor și hrana necesară
-    animale_id NumereAnimale;
-    hrana_necesara HranaCantitate;
-
-    -- Variabila pentru a stoca cantitatea de hrana actualizată
-    cantitate_actualizata NUMBER;
-
+CREATE OR REPLACE FUNCTION ObtineMedicamentAnimal(p_ID_Animal INT)
+RETURN VARCHAR2 IS
+  v_Medicament VARCHAR2(255);
 BEGIN
-    -- Inițializarea colecțiilor cu valorile furnizate ca parametri
-    animale_id(1) := p_id_animal;
-    hrana_necesara(p_nume_hrana) := p_cantitate_aditionala;
+  SELECT M.DENUMIRE_PRODUS
+  INTO v_Medicament
+  FROM MEDICAMENT M
+  JOIN CARTE_DE_SANATATE CS ON M.NUMAR = CS.ID_ANIMAL
+  WHERE CS.ID_ANIMAL = p_ID_Animal;
 
-    -- Parcurgerea colecției și actualizarea cantității de hrana
-    FOR i IN 1..animale_id.COUNT LOOP
-        SELECT CANTITATE + hrana_necesara.EXISTS(p_nume_hrana) * hrana_necesara(p_nume_hrana)
-        INTO cantitate_actualizata
-        FROM HRANA
-        WHERE NUMAR = animale_id(i);
+  RETURN v_Medicament;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    RETURN 'Animalul nu are informații în carnetul de sănătate.';
+  WHEN OTHERS THEN
+    RETURN 'Eroare necunoscută: ' || SQLERRM;
+END ObtineMedicamentAnimal;
+/
 
-        -- Actualizarea cantității de hrana
-        UPDATE HRANA
-        SET CANTITATE = cantitate_actualizata
-        WHERE NUMAR = animale_id(i) AND DENUMIRE_PRODUS = p_nume_hrana;
 
-        COMMIT;
-    END LOOP;
+-- apelare
+
+DECLARE
+  v_ID_Animal INT := 1; -- Schimbați ID-ul animalului după nevoie
+  v_Resultat VARCHAR2(255);
+BEGIN
+  v_Resultat := ObtineMedicamentAnimal(v_ID_Animal);
+  DBMS_OUTPUT.PUT_LINE('Medicament recomandat pentru animalul cu ID ' || v_ID_Animal || ': ' || v_Resultat);
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
 END;
 /
 
--- Crearea unui subprogram stocat independent de tip funcție care utilizează un cursor parametrizat.
-
-CREATE OR REPLACE FUNCTION cursor_parametrizat(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR IS
-    v_cursor SYS_REFCURSOR;
-BEGIN
-    OPEN v_cursor FOR
-    SELECT NUMAR, DENUMIRE_PRODUS, CANTITATE
-    FROM HRANA
-    WHERE DENUMIRE_PRODUS = p_nume_hrana;
-
-    RETURN v_cursor;
-END;
-/
-
--- Crearea unui subprogram stocat independent de tip funcție care utilizează un cursor dependent.
-
-CREATE OR REPLACE FUNCTION cursor_dependent(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR IS
-    v_cursor SYS_REFCURSOR;
-    v_numar NUMBER;
-
-BEGIN
-    -- Utilizarea cursorului parametrizat pentru a obține detalii despre hrana specificată
-    OPEN v_cursor FOR
-    SELECT NUMAR
-    FROM TABLE(cursor_parametrizat(p_nume_hrana));
-
-    -- Parcurgerea cursorului dependent pentru a obține informații despre animale
-    LOOP
-        FETCH v_cursor INTO v_numar;
-        EXIT WHEN v_cursor%NOTFOUND;
-
-        -- Selectarea informațiilor despre animalele care au nevoie de hrana specificată
-        FOR animal IN (SELECT A.NUME, A.RASA, A.VARSTA, A.SEX, V.NUME || ' ' || V.PRENUME AS VETERINAR
-                        FROM ANIMAL A
-                        JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP
-                        WHERE A.ID_ANIMAL = v_numar) LOOP
-            DBMS_OUTPUT.PUT_LINE('Animal: ' || animal.NUME || ', Rasa: ' || animal.RASA ||
-                                 ', Varsta: ' || animal.VARSTA || ', Sex: ' || animal.SEX ||
-                                 ', Veterinar: ' || animal.VETERINAR);
-        END LOOP;
-    END LOOP;
-
-    RETURN v_cursor;
-END;
-/
 
 -- cerinta 9
 
-CREATE OR REPLACE PROCEDURE get_product_details(
-    p_product_id IN NUMBER
-)
-IS
-    v_product_name VARCHAR2(100);
-    v_price NUMBER;
-    v_stock_quantity NUMBER;
-    v_category_name VARCHAR2(50);
-    v_avg_rating NUMBER;
 
+CREATE OR REPLACE PROCEDURE Problema9(p_ID_Animal INT) IS
+  v_NumeAnimal VARCHAR2(255);
+  v_RasaAnimal VARCHAR2(255);
+  v_DenumireClinica VARCHAR2(255);
+  v_TipNevoieSector VARCHAR2(255);
+  v_NumeFarmacie VARCHAR2(255);
 BEGIN
-    -- Extrage detaliile produsului folosind cele cinci tabele
-    SELECT products.product_name, prices.price, stock.quantity, categories.category_name, AVG(reviews.rating)
-    INTO v_product_name, v_price, v_stock_quantity, v_category_name, v_avg_rating
-    FROM products
-    JOIN prices ON products.product_id = prices.product_id
-    JOIN stock ON products.product_id = stock.product_id
-    JOIN categories ON products.category_id = categories.category_id
-    LEFT JOIN reviews ON products.product_id = reviews.product_id
-    WHERE products.product_id = p_product_id
-    GROUP BY products.product_name, prices.price, stock.quantity, categories.category_name;
+  SELECT A.NUME, A.RASA, C.DENUMIRE, S.TIP_NEVOIE, F.NUME
+  INTO v_NumeAnimal, v_RasaAnimal, v_DenumireClinica, v_TipNevoieSector, v_NumeFarmacie
+  FROM ANIMAL A
+  JOIN CLINICA_VETERINARA C ON A.ID_VETERINAR = C.ID_VETERINAR
+  JOIN SECTIE_SECTOR SS ON SS.ID_SECTIE = A.ID_CUSCA
+  JOIN SECTOR S ON S.ID_SECTOR = SS.ID_SECTOR
+  LEFT JOIN MED M ON M.ID_FARMACIE = S.ID_SECTOR
+  LEFT JOIN FARMACIE F ON F.ID_FARMACIE = M.ID_FARMACIE
+  WHERE A.ID_ANIMAL = p_ID_Animal;
 
-    -- Afiseaza detaliile produsului
-    DBMS_OUTPUT.PUT_LINE('Product Name: ' || v_product_name);
-    DBMS_OUTPUT.PUT_LINE('Price: ' || v_price);
-    DBMS_OUTPUT.PUT_LINE('Stock Quantity: ' || v_stock_quantity);
-    DBMS_OUTPUT.PUT_LINE('Category: ' || v_category_name);
-    DBMS_OUTPUT.PUT_LINE('Average Rating: ' || NVL(TO_CHAR(v_avg_rating), 'N/A'));
+  -- Poți adăuga aici operații suplimentare folosind variabilele create
 
+  DBMS_OUTPUT.PUT_LINE('Numele animalului cu ID ' || p_ID_Animal || ': ' || v_NumeAnimal);
+  DBMS_OUTPUT.PUT_LINE('Rasa animalului: ' || v_RasaAnimal);
+  DBMS_OUTPUT.PUT_LINE('Clinica veterinară asociată: ' || v_DenumireClinica);
+  DBMS_OUTPUT.PUT_LINE('Sector cu nevoia: ' || v_TipNevoieSector);
+  DBMS_OUTPUT.PUT_LINE('Farmacia asociată sectorului: ' || v_NumeFarmacie);
 EXCEPTION
-    WHEN NO_DATA_FOUND THEN
-        DBMS_OUTPUT.PUT_LINE('Product not found.');
-    WHEN TOO_MANY_ROWS THEN
-        DBMS_OUTPUT.PUT_LINE('Multiple products found. Please check the data.');
-    WHEN OTHERS THEN
-        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
-END get_product_details;
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('Animalul cu ID ' || p_ID_Animal || ' nu a fost găsit.');
+  WHEN TOO_MANY_ROWS THEN
+    DBMS_OUTPUT.PUT_LINE('S-au găsit prea multe înregistrări pentru animalul cu ID ' || p_ID_Animal || '.');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Eroare necunoscută: ' || SQLERRM);
+END Problema9;
 /
 
+
+-- apelare 
+
+DECLARE
+  v_ID_Animal INT := 1; -- Schimbă ID-ul animalului după nevoie
+BEGIN
+  Problema9(v_ID_Animal);
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
+END;
+/
+
+
 -- cerinta 10
+
 
 -- Definirea trigger-ului de tip LMD la nivel de comandă
 CREATE OR REPLACE TRIGGER trg_lmd_comanda
@@ -682,203 +650,35 @@ UPDATE HRANA SET CANTITATE = CANTITATE + 5 WHERE NUMAR = 1;
 -- Sau prin inserarea unui nou înregistrare în tabelul HRANA
 INSERT INTO HRANA (NUMAR, DENUMIRE_PRODUS, CANTITATE, ID_MAGAZIN) VALUES (7, 'Hrana test', 10, 1);
 
--- cerinta 12 ??????
 
-CREATE OR REPLACE PROCEDURE actualizare_hrană(
-    p_id_animal IN NUMBER,
-    p_nume_hrana IN VARCHAR2,
-    p_cantitate_aditionala IN NUMBER
-) AS
-    TYPE NumereAnimale IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
-    TYPE HranaCantitate IS TABLE OF NUMBER INDEX BY VARCHAR2(255);
+-- cerinta 12 
 
-    -- Declararea colecțiilor pentru a stoca id-urile animalelor și hrana necesară
-    animale_id NumereAnimale;
-    hrana_necesara HranaCantitate;
-
-    -- Variabila pentru a stoca cantitatea de hrana actualizată
-    cantitate_actualizata NUMBER;
-
+CREATE OR REPLACE TRIGGER trg_ldd_trigger
+AFTER CREATE OR ALTER OR DROP ON SCHEMA
+DECLARE
+   object_name   VARCHAR2(30);
+   ddl_action    VARCHAR2(30);
 BEGIN
-    -- Inițializarea colecțiilor cu valorile furnizate ca parametri
-    animale_id(1) := p_id_animal;
-    hrana_necesara(p_nume_hrana) := p_cantitate_aditionala;
+   object_name := ORA_DICT_OBJ_NAME;
+   ddl_action  := ora_sysevent;
 
-    -- Parcurgerea colecției și actualizarea cantității de hrana
-    FOR i IN 1..animale_id.COUNT LOOP
-        SELECT CANTITATE + hrana_necesara.EXISTS(p_nume_hrana) * hrana_necesara(p_nume_hrana)
-        INTO cantitate_actualizata
-        FROM HRANA
-        WHERE NUMAR = animale_id(i);
-
-        -- Actualizarea cantității de hrana
-        UPDATE HRANA
-        SET CANTITATE = cantitate_actualizata
-        WHERE NUMAR = animale_id(i) AND DENUMIRE_PRODUS = p_nume_hrana;
-
-        COMMIT;
-    END LOOP;
+   -- Afișează mesajul cu detaliile acțiunii
+   DBMS_OUTPUT.PUT_LINE('Trigger LDD - Schema action: ' || ddl_action || ', Object name: ' || object_name);
 END;
 /
 
-BEGIN
-    actualizare_hrană(1, 'Hrana uscata pentru caini Pedigree Adult', 20);
-    actualizare_hrană(3, 'Hrana umeda pentru caini Petkult Adult cu rata', 15);
-END;
-/
-
-CREATE OR REPLACE FUNCTION cursor_parametrizat(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR IS
-    v_cursor SYS_REFCURSOR;
-BEGIN
-    OPEN v_cursor FOR
-    SELECT NUMAR, DENUMIRE_PRODUS, CANTITATE
-    FROM HRANA
-    WHERE DENUMIRE_PRODUS = p_nume_hrana;
-
-    RETURN v_cursor;
-END;
-/
-
-CREATE OR REPLACE FUNCTION cursor_dependent(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR IS
-    v_cursor SYS_REFCURSOR;
-    v_numar NUMBER;
-
-BEGIN
-    -- Utilizarea cursorului parametrizat pentru a obține detalii despre hrana specificată
-    OPEN v_cursor FOR
-    SELECT NUMAR
-    FROM TABLE(cursor_parametrizat(p_nume_hrana));
-
-    -- Parcurgerea cursorului dependent pentru a obține informații despre animale
-    LOOP
-        FETCH v_cursor INTO v_numar;
-        EXIT WHEN v_cursor%NOTFOUND;
-
-        -- Selectarea informațiilor despre animalele care au nevoie de hrana specificată
-        FOR animal IN (SELECT A.NUME, A.RASA, A.VARSTA, A.SEX, V.NUME || ' ' || V.PRENUME AS VETERINAR
-                        FROM ANIMAL A
-                        JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP
-                        WHERE A.ID_ANIMAL = v_numar) LOOP
-            DBMS_OUTPUT.PUT_LINE('Animal: ' || animal.NUME || ', Rasa: ' || animal.RASA ||
-                                 ', Varsta: ' || animal.VARSTA || ', Sex: ' || animal.SEX ||
-                                 ', Veterinar: ' || animal.VETERINAR);
-        END LOOP;
-    END LOOP;
-
-    CLOSE v_cursor;
-    RETURN v_cursor;
-END;
-/
+SET SERVEROUTPUT ON;
 
 
--- cerinta 13
-
-CREATE OR REPLACE PACKAGE ANIMAL_SHET AS
-    -- Tipurile de date
-    TYPE NumereAnimale IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
-    TYPE HranaCantitate IS TABLE OF NUMBER INDEX BY VARCHAR2(255);
-
-    -- Obiectele definite
-    PROCEDURE actualizare_hrană(
-        p_id_animal IN NUMBER,
-        p_nume_hrana IN VARCHAR2,
-        p_cantitate_aditionala IN NUMBER
-    );
-    
-    FUNCTION cursor_parametrizat(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR;
-    
-    FUNCTION cursor_dependent(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR;
-END ANIMAL_SHET;
-/
+--SELECT *
+--FROM ALL_ERRORS
+--WHERE NAME = 'TRG_LDD_TRIGGER';
 
 
--- cerinta 14
+-- testare trigger
+CREATE TABLE Exemplu (
+    ID INT PRIMARY KEY,
+    NUME VARCHAR2(50)
+);
 
-CREATE OR REPLACE PACKAGE BODY ANIMAL_SHET AS
-    -- Tipurile de date complexe
-    TYPE DetaliiAnimal IS RECORD (
-        NUME VARCHAR2(255),
-        RASA VARCHAR2(255),
-        VARSTA INT,
-        SEX VARCHAR2(255),
-        VETERINAR VARCHAR2(255)
-    );
-
-    TYPE DetaliiHrana IS RECORD (
-        NUMAR INT,
-        DENUMIRE_PRODUS VARCHAR2(255),
-        CANTITATE INT
-    );
-
-    -- Procedura pentru actualizarea hranei
-    PROCEDURE actualizare_hrană(
-        p_id_animal IN NUMBER,
-        p_nume_hrana IN VARCHAR2,
-        p_cantitate_aditionala IN NUMBER
-    ) AS
-        -- Definirea variabilei cantitate_actualizata
-        cantitate_actualizata NUMBER;
-
-    BEGIN
-        -- Detalii suplimentare pentru animale
-        FOR animal IN (SELECT A.NUME, A.RASA, A.VARSTA, A.SEX, V.NUME || ' ' || V.PRENUME AS VETERINAR
-                        FROM ANIMAL A
-                        JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP
-                        WHERE A.ID_ANIMAL = p_id_animal) LOOP
-
-            -- Afisarea detaliilor animalelor
-            DBMS_OUTPUT.PUT_LINE('Detalii despre animal: ' || animal.NUME || ', ' || animal.RASA || ', ' ||
-                                animal.VARSTA || ' ani, ' || animal.SEX || ', Veterinar: ' || animal.VETERINAR);
-        END LOOP;
-
-        -- Initializarea colectiei cu cantitatile de hrana necesare
-        FOR hrana IN (SELECT NUMAR, DENUMIRE_PRODUS, CANTITATE + p_cantitate_aditionala AS CANTITATE
-                        FROM HRANA
-                        WHERE NUMAR = p_id_animal AND DENUMIRE_PRODUS = p_nume_hrana) LOOP
-            cantitate_actualizata := hrana.CANTITATE;
-
-            -- Actualizarea cantitatii de hrana
-            UPDATE HRANA
-            SET CANTITATE = cantitate_actualizata
-            WHERE NUMAR = hrana.NUMAR AND DENUMIRE_PRODUS = hrana.DENUMIRE_PRODUS;
-
-            -- Afisarea detaliilor hranei actualizate
-            DBMS_OUTPUT.PUT_LINE('Hrana actualizata: ' || hrana.DENUMIRE_PRODUS || ', Cantitate: ' || cantitate_actualizata);
-        END LOOP;
-    END actualizare_hrană;
-
-    -- Functia cursor_parametrizat
-    FUNCTION cursor_parametrizat(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-
-    BEGIN
-        -- Deschiderea cursorului parametrizat
-        OPEN v_cursor FOR
-            SELECT NUMAR, DENUMIRE_PRODUS, CANTITATE
-            FROM HRANA
-            WHERE DENUMIRE_PRODUS = p_nume_hrana;
-
-        -- Returnarea cursorului
-        RETURN v_cursor;
-    END cursor_parametrizat;
-
-    -- Functia cursor_dependent
-    FUNCTION cursor_dependent(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR IS
-        v_cursor SYS_REFCURSOR;
-
-    BEGIN
-        -- Deschiderea cursorului dependent
-        OPEN v_cursor FOR
-            SELECT A.NUME, A.RASA, H.NUMAR, H.DENUMIRE_PRODUS, H.CANTITATE
-            FROM ANIMAL A
-            JOIN HRANA H ON A.ID_ANIMAL = H.NUMAR
-            WHERE H.DENUMIRE_PRODUS = p_nume_hrana;
-
-        -- Returnarea cursorului
-        RETURN v_cursor;
-    END cursor_dependent;
-END ANIMAL_SHET;
-/
-
-
-
+DROP TABLE EXEMPLU;
