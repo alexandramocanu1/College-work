@@ -708,9 +708,8 @@ END ANIMAL_SHET;
 
 
 
-
 -- cerinta 14
-
+    
 CREATE OR REPLACE PACKAGE BODY ANIMAL_SHET AS
     -- Tipurile de date complexe
     TYPE DetaliiAnimal IS RECORD (
@@ -728,7 +727,7 @@ CREATE OR REPLACE PACKAGE BODY ANIMAL_SHET AS
     );
 
     -- Procedura pentru actualizarea hranei
-    PROCEDURE actualizare_hrană(
+    PROCEDURE actualizare_hrana(
         p_id_animal IN NUMBER,
         p_nume_hrana IN VARCHAR2,
         p_cantitate_aditionala IN NUMBER
@@ -762,7 +761,7 @@ CREATE OR REPLACE PACKAGE BODY ANIMAL_SHET AS
             -- Afisarea detaliilor hranei actualizate
             DBMS_OUTPUT.PUT_LINE('Hrana actualizata: ' || hrana.DENUMIRE_PRODUS || ', Cantitate: ' || cantitate_actualizata);
         END LOOP;
-    END actualizare_hrană;
+    END actualizare_hrana;
 
     -- Functia cursor_parametrizat
     FUNCTION cursor_parametrizat(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR IS
