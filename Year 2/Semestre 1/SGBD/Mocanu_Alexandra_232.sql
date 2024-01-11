@@ -416,24 +416,24 @@ CREATE OR REPLACE PROCEDURE actualizare_hrana(
     cantitate_actualizata NUMBER;
 
 BEGIN
-    -- Actualizarea cantității de hrana
+    -- Actualizarea cantitații de hrana
     UPDATE HRANA
     SET CANTITATE = CANTITATE + p_cantitate_aditionala
     WHERE ID_MAGAZIN = p_id_animal AND DENUMIRE_PRODUS = p_nume_hrana;
 
-    cantitate_actualizata := SQL%ROWCOUNT; -- Numărul de înregistrări actualizate
+    cantitate_actualizata := SQL%ROWCOUNT; -- Numarul de înregistrari actualizate
 
     IF cantitate_actualizata > 0 THEN
         COMMIT;
-        DBMS_OUTPUT.PUT_LINE('Cantitatea de hrana pentru animalul cu ID ' || p_id_animal || ' și hrana ' || p_nume_hrana || ' a fost actualizată cu ' || p_cantitate_aditionala || ' unități.');
+        DBMS_OUTPUT.PUT_LINE('Cantitatea de hrana pentru animalul cu ID ' || p_id_animal || ' și hrana ' || p_nume_hrana || ' a fost actualizata cu ' || p_cantitate_aditionala || ' unitați.');
     ELSE
-        -- Gestionarea cazului în care nu există înregistrare pentru actualizare
-        DBMS_OUTPUT.PUT_LINE('Nu s-au găsit date pentru ID-ul animalului ' || p_id_animal || ' și hrana ' || p_nume_hrana);
+        -- Gestionarea cazului în care nu exista înregistrare pentru actualizare
+        DBMS_OUTPUT.PUT_LINE('Nu s-au gasit date pentru ID-ul animalului ' || p_id_animal || ' și hrana ' || p_nume_hrana);
     END IF;
 EXCEPTION
     WHEN OTHERS THEN
         -- Gestionarea altor erori
-        DBMS_OUTPUT.PUT_LINE('A apărut o eroare: ' || SQLERRM);
+        DBMS_OUTPUT.PUT_LINE('A aparut o eroare: ' || SQLERRM);
 END;
 /
 
@@ -444,9 +444,9 @@ END;
 -- apelarea procedurii
 
 DECLARE
-    v_id_animal NUMBER := 1; -- ID-ul animalului pentru care vrei să actualizezi hrana
+    v_id_animal NUMBER := 123456787654; -- ID-ul animalului pentru care vrei sa actualizezi hrana
     v_nume_hrana VARCHAR2(255) := 'Hrana uscata pentru caini Pedigree Adult'; -- Numele hranei
-    v_cantitate_aditionala NUMBER := 2; -- Cantitatea adițională de hrana
+    v_cantitate_aditionala NUMBER := 2; -- Cantitatea adiționala de hrana
 BEGIN
     actualizare_hrana(
         p_id_animal => v_id_animal,
@@ -530,9 +530,9 @@ BEGIN
   RETURN v_Medicament;
 EXCEPTION
   WHEN NO_DATA_FOUND THEN
-    RETURN 'Animalul nu are informații în carnetul de sănătate.';
+    RETURN 'Animalul nu are informații în carnetul de sanatate.';
   WHEN OTHERS THEN
-    RETURN 'Eroare necunoscută: ' || SQLERRM;
+    RETURN 'Eroare necunoscuta: ' || SQLERRM;
 END ObtineMedicamentAnimal;
 /
 
@@ -540,7 +540,7 @@ END ObtineMedicamentAnimal;
 -- apelare
 
 DECLARE
-  v_ID_Animal INT := 1; -- Schimbați ID-ul animalului după nevoie
+  v_ID_Animal INT := 1; -- Schimbați ID-ul animalului dupa nevoie
   v_Resultat VARCHAR2(255);
 BEGIN
   v_Resultat := ObtineMedicamentAnimal(v_ID_Animal);
@@ -572,20 +572,20 @@ BEGIN
   LEFT JOIN FARMACIE F ON F.ID_FARMACIE = M.ID_FARMACIE
   WHERE A.ID_ANIMAL = p_ID_Animal;
 
-  -- Poți adăuga aici operații suplimentare folosind variabilele create
+  -- Poți adauga aici operații suplimentare folosind variabilele create
 
   DBMS_OUTPUT.PUT_LINE('Numele animalului cu ID ' || p_ID_Animal || ': ' || v_NumeAnimal);
   DBMS_OUTPUT.PUT_LINE('Rasa animalului: ' || v_RasaAnimal);
-  DBMS_OUTPUT.PUT_LINE('Clinica veterinară asociată: ' || v_DenumireClinica);
+  DBMS_OUTPUT.PUT_LINE('Clinica veterinara asociata: ' || v_DenumireClinica);
   DBMS_OUTPUT.PUT_LINE('Sector cu nevoia: ' || v_TipNevoieSector);
-  DBMS_OUTPUT.PUT_LINE('Farmacia asociată sectorului: ' || v_NumeFarmacie);
+  DBMS_OUTPUT.PUT_LINE('Farmacia asociata sectorului: ' || v_NumeFarmacie);
 EXCEPTION
   WHEN NO_DATA_FOUND THEN
-    DBMS_OUTPUT.PUT_LINE('Animalul cu ID ' || p_ID_Animal || ' nu a fost găsit.');
+    DBMS_OUTPUT.PUT_LINE('Animalul cu ID ' || p_ID_Animal || ' nu a fost gasit.');
   WHEN TOO_MANY_ROWS THEN
-    DBMS_OUTPUT.PUT_LINE('S-au găsit prea multe înregistrări pentru animalul cu ID ' || p_ID_Animal || '.');
+    DBMS_OUTPUT.PUT_LINE('S-au gasit prea multe înregistrari pentru animalul cu ID ' || p_ID_Animal || '.');
   WHEN OTHERS THEN
-    DBMS_OUTPUT.PUT_LINE('Eroare necunoscută: ' || SQLERRM);
+    DBMS_OUTPUT.PUT_LINE('Eroare necunoscuta: ' || SQLERRM);
 END Problema9;
 /
 
@@ -593,7 +593,7 @@ END Problema9;
 -- apelare 
 
 DECLARE
-  v_ID_Animal INT := 1; -- Schimbă ID-ul animalului după nevoie
+  v_ID_Animal INT := 1; -- Schimba ID-ul animalului dupa nevoie
 BEGIN
   Problema9(v_ID_Animal);
 EXCEPTION
@@ -606,7 +606,7 @@ END;
 -- cerinta 10
 
 
--- Definirea trigger-ului de tip LMD la nivel de comandă
+-- Definirea trigger-ului de tip LMD la nivel de comanda
 CREATE OR REPLACE TRIGGER trg_lmd_comanda
 BEFORE INSERT OR UPDATE ON HRANA
 DECLARE
@@ -616,11 +616,11 @@ BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
     -- Afișarea unui mesaj înainte de efectuarea operațiunii
-    DBMS_OUTPUT.PUT_LINE('Trigger LMD la nivel de comandă declanșat de către ' || v_user);
+    DBMS_OUTPUT.PUT_LINE('Trigger LMD la nivel de comanda declanșat de catre ' || v_user);
 END;
 /
 
--- Declanșarea trigger-ului prin efectuarea unei modificări în tabelul HRANA
+-- Declanșarea trigger-ului prin efectuarea unei modificari în tabelul HRANA
 UPDATE HRANA SET CANTITATE = CANTITATE + 5 WHERE NUMAR = 1;
 
 -- Sau prin inserarea unui nou înregistrare în tabelul HRANA
@@ -640,11 +640,11 @@ BEGIN
     SELECT USER INTO v_user FROM DUAL;
 
     -- Afișarea unui mesaj înainte de efectuarea operațiunii pentru fiecare înregistrare
-    DBMS_OUTPUT.PUT_LINE('Trigger LMD la nivel de linie declanșat de către ' || v_user || ' pentru înregistrarea cu NUMAR ' || :NEW.NUMAR);
+    DBMS_OUTPUT.PUT_LINE('Trigger LMD la nivel de linie declanșat de catre ' || v_user || ' pentru înregistrarea cu NUMAR ' || :NEW.NUMAR);
 END;
 /
 
--- Declanșarea trigger-ului prin efectuarea unei modificări în tabelul HRANA
+-- Declanșarea trigger-ului prin efectuarea unei modificari în tabelul HRANA
 UPDATE HRANA SET CANTITATE = CANTITATE + 5 WHERE NUMAR = 1;
 
 -- Sau prin inserarea unui nou înregistrare în tabelul HRANA
@@ -662,12 +662,12 @@ BEGIN
    object_name := ORA_DICT_OBJ_NAME;
    ddl_action  := ora_sysevent;
 
-   -- Afișează mesajul cu detaliile acțiunii
+   -- Afișeaza mesajul cu detaliile acțiunii
    DBMS_OUTPUT.PUT_LINE('Trigger LDD - Schema action: ' || ddl_action || ', Object name: ' || object_name);
 END;
 /
 
-SET SERVEROUTPUT ON;
+--SET SERVEROUTPUT ON;
 
 
 --SELECT *
@@ -685,7 +685,6 @@ DROP TABLE EXEMPLU;
 
 
 
-
 -- cerinta 13
 
 CREATE OR REPLACE PACKAGE ANIMAL_SHET AS
@@ -693,23 +692,40 @@ CREATE OR REPLACE PACKAGE ANIMAL_SHET AS
     TYPE NumereAnimale IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
     TYPE HranaCantitate IS TABLE OF NUMBER INDEX BY VARCHAR2(255);
 
-    -- Obiectele definite
+    -- Procedura pentru cerinta 6
     PROCEDURE actualizare_hrana(
         p_id_animal IN NUMBER,
         p_nume_hrana IN VARCHAR2,
         p_cantitate_aditionala IN NUMBER
     );
-    
-    FUNCTION cursor_parametrizat(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR;
-    
-    FUNCTION cursor_dependent(p_nume_hrana VARCHAR2) RETURN SYS_REFCURSOR;
+
+    -- Procedura pentru cerinta 7
+    PROCEDURE AfisareAnimaleAdoptate(
+        dataAdoptie IN DATE
+    );
+
+    -- Functia pentru cerinta 8
+    FUNCTION ObtineMedicamentAnimal(p_ID_Animal INT) RETURN VARCHAR2;
+
+    -- Procedura pentru cerinta 9
+    PROCEDURE Problema9(p_ID_Animal INT);
+
+    -- Trigger pentru cerinta 10
+    -- Trigger de tip LMD la nivel de comanda
+    PROCEDURE trg_lmd_comanda;
+
+    -- Trigger pentru cerinta 11
+    -- Trigger de tip LMD la nivel de linie
+    PROCEDURE trg_lmd_linie;
+
+    -- Trigger pentru cerinta 12
+    PROCEDURE trg_ldd_trigger;
 END ANIMAL_SHET;
 /
 
 
-
 -- cerinta 14
-    
+
 CREATE OR REPLACE PACKAGE BODY ANIMAL_SHET AS
     -- Tipurile de date complexe
     TYPE DetaliiAnimal IS RECORD (
