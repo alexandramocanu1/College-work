@@ -602,9 +602,12 @@ CREATE OR REPLACE PROCEDURE informatii_animal(p_ID_Animal INT) IS
   v_DenumireClinica VARCHAR2(255);
   v_TipNevoieSector VARCHAR2(255);
   v_NumeFarmacie VARCHAR2(255);
+  v_VarstaAnimal INT;
 BEGIN
-  SELECT A.NUME, A.RASA, C.DENUMIRE, S.TIP_NEVOIE, F.NUME
-  INTO v_NumeAnimal, v_RasaAnimal, v_DenumireClinica, v_TipNevoieSector, v_NumeFarmacie
+  -- Restul codului rămâne neschimbat
+
+  SELECT A.NUME, A.RASA, C.DENUMIRE, S.TIP_NEVOIE, F.NUME, A.VARSTA
+  INTO v_NumeAnimal, v_RasaAnimal, v_DenumireClinica, v_TipNevoieSector, v_NumeFarmacie, v_VarstaAnimal
   FROM ANIMAL A
   JOIN CLINICA_VETERINARA C ON A.ID_VETERINAR = C.ID_VETERINAR
   JOIN SECTIE_SECTOR SS ON SS.ID_SECTIE = A.ID_CUSCA
@@ -613,7 +616,16 @@ BEGIN
   LEFT JOIN FARMACIE F ON F.ID_FARMACIE = M.ID_FARMACIE
   WHERE A.ID_ANIMAL = p_ID_Animal;
 
-  -- Poți adauga aici operații suplimentare folosind variabilele create
+  -- Adăugăm o verificare pentru a afișa un mesaj diferit în funcție de vârsta animalului
+  IF v_VarstaAnimal < 1 THEN
+    DBMS_OUTPUT.PUT_LINE('Animalul este foarte tânăr.');
+  ELSIF v_VarstaAnimal BETWEEN 1 AND 5 THEN
+    DBMS_OUTPUT.PUT_LINE('Animalul este adult tânăr.');
+  ELSE
+    DBMS_OUTPUT.PUT_LINE('Animalul este adult.');
+  END IF;
+
+  -- Poți adăuga și alte operații suplimentare aici
 
   DBMS_OUTPUT.PUT_LINE('Numele animalului cu ID ' || p_ID_Animal || ': ' || v_NumeAnimal);
   DBMS_OUTPUT.PUT_LINE('Rasa animalului: ' || v_RasaAnimal);
@@ -631,10 +643,77 @@ END informatii_animal;
 /
 
 
+-- cerinta 9
+
+CREATE OR REPLACE PROCEDURE informatii_animal(p_ID_Animal INT) IS
+  v_NumeAnimal VARCHAR2(255);
+  v_RasaAnimal VARCHAR2(255);
+  v_DenumireClinica VARCHAR2(255);
+  v_TipNevoieSector VARCHAR2(255);
+  v_NumeFarmacie VARCHAR2(255);
+  v_RecordCount INT := 0;
+BEGIN
+  SELECT A.NUME, A.RASA, C.DENUMIRE, S.TIP_NEVOIE, F.NUME
+  INTO v_NumeAnimal, v_RasaAnimal, v_DenumireClinica, v_TipNevoieSector, v_NumeFarmacie
+  FROM ANIMAL A
+  JOIN CLINICA_VETERINARA C ON A.ID_VETERINAR = C.ID_VETERINAR
+  JOIN SECTIE_SECTOR SS ON SS.ID_SECTIE = A.ID_CUSCA
+  JOIN SECTOR S ON S.ID_SECTOR = SS.ID_SECTOR
+  LEFT JOIN MED M ON M.ID_FARMACIE = S.ID_SECTOR
+  LEFT JOIN FARMACIE F ON F.ID_FARMACIE = M.ID_FARMACIE
+  WHERE A.ID_ANIMAL = p_ID_Animal AND ROWNUM = 1
+  ORDER BY A.DATA_SOSIRE DESC;
+
+  -- Numărul de înregistrări găsite
+  SELECT COUNT(*)
+  INTO v_RecordCount
+  FROM ANIMAL A
+  JOIN CLINICA_VETERINARA C ON A.ID_VETERINAR = C.ID_VETERINAR
+  JOIN SECTIE_SECTOR SS ON SS.ID_SECTIE = A.ID_CUSCA
+  JOIN SECTOR S ON S.ID_SECTOR = SS.ID_SECTOR
+  LEFT JOIN MED M ON M.ID_FARMACIE = S.ID_SECTOR
+  LEFT JOIN FARMACIE F ON F.ID_FARMACIE = M.ID_FARMACIE
+  WHERE A.ID_ANIMAL = p_ID_Animal;
+
+  -- Poți adăuga aici operații suplimentare folosind variabilele create
+
+  -- Afisează doar prima înregistrare dacă sunt mai multe
+  IF v_RecordCount > 1 THEN
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+		DBMS_OUTPUT.PUT_LINE('S-au găsit prea multe înregistrări pentru animalul cu ID ' || p_ID_Animal || '. Se afișează doar prima înregistrare.');
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+  END IF;
+
+  DBMS_OUTPUT.PUT_LINE('Numele animalului cu ID ' || p_ID_Animal || ': ' || v_NumeAnimal);
+  DBMS_OUTPUT.PUT_LINE('Rasa animalului: ' || v_RasaAnimal);
+  DBMS_OUTPUT.PUT_LINE('Clinica veterinară asociată: ' || v_DenumireClinica);
+  DBMS_OUTPUT.PUT_LINE('Sector cu nevoie: ' || v_TipNevoieSector);
+  --DBMS_OUTPUT.PUT_LINE('Farmacia asociată sectorului: ' || v_NumeFarmacie);
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+    DBMS_OUTPUT.PUT_LINE('Animalul cu ID ' || p_ID_Animal || ' nu a fost găsit.');
+    DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Eroare necunoscută: ' || SQLERRM);
+END informatii_animal;
+/
+
 -- apelare 
 
 DECLARE
-  v_ID_Animal INT := 1; -- Schimba ID-ul animalului dupa nevoie
+  v_ID_Animal INT := 1;
+BEGIN
+  informatii_animal(v_ID_Animal);
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
+END;
+/
+    
+
+DECLARE
+  v_ID_Animal INT := 9;
 BEGIN
   informatii_animal(v_ID_Animal);
 EXCEPTION
@@ -644,6 +723,9 @@ END;
 /
 
 
+
+
+    
 -- cerinta 10
 
 
