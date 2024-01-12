@@ -416,7 +416,7 @@ CREATE OR REPLACE PROCEDURE actualizare_hrana(
     cantitate_actualizata NUMBER;
 
 BEGIN
-    -- Actualizarea cantitații de hrana
+    -- Actualizarea cantitatii de hrana
     UPDATE HRANA
     SET CANTITATE = CANTITATE + p_cantitate_aditionala
     WHERE ID_MAGAZIN = p_id_animal AND DENUMIRE_PRODUS = p_nume_hrana;
@@ -425,10 +425,10 @@ BEGIN
 
     IF cantitate_actualizata > 0 THEN
         COMMIT;
-        DBMS_OUTPUT.PUT_LINE('Cantitatea de hrana pentru animalul cu ID ' || p_id_animal || ' și hrana ' || p_nume_hrana || ' a fost actualizata cu ' || p_cantitate_aditionala || ' unitați.');
+        DBMS_OUTPUT.PUT_LINE('Cantitatea de hrana pentru animalul cu ID ' || p_id_animal || ' și ' || p_nume_hrana || ' a fost actualizata cu ' || p_cantitate_aditionala || ' unitați.');
     ELSE
         -- Gestionarea cazului în care nu exista înregistrare pentru actualizare
-        DBMS_OUTPUT.PUT_LINE('Nu s-au gasit date pentru ID-ul animalului ' || p_id_animal || ' și hrana ' || p_nume_hrana);
+        DBMS_OUTPUT.PUT_LINE('Nu s-au gasit date pentru ID-ul animalului ' || p_id_animal || ' și ' || p_nume_hrana);
     END IF;
 EXCEPTION
     WHEN OTHERS THEN
@@ -442,11 +442,25 @@ END;
 
 
 -- apelarea procedurii
-
+-- pentru un ID valid:
 DECLARE
-    v_id_animal NUMBER := 123456787654; -- ID-ul animalului pentru care vrei sa actualizezi hrana
+    v_id_animal NUMBER := 1; -- ID-ul animalului pentru care se vrea actualizarea hranei
     v_nume_hrana VARCHAR2(255) := 'Hrana uscata pentru caini Pedigree Adult'; -- Numele hranei
-    v_cantitate_aditionala NUMBER := 2; -- Cantitatea adiționala de hrana
+    v_cantitate_aditionala NUMBER := 2; -- Cantitatea aditionala de hrana
+BEGIN
+    actualizare_hrana(
+        p_id_animal => v_id_animal,
+        p_nume_hrana => v_nume_hrana,
+        p_cantitate_aditionala => v_cantitate_aditionala
+    );
+END;
+/
+
+-- pentru un ID invalid:
+DECLARE
+    v_id_animal NUMBER := 123456787654; -- ID-ul animalului pentru care se vrea actualizarea hranei
+    v_nume_hrana VARCHAR2(255) := 'Hrana uscata pentru caini Pedigree Adult'; -- Numele hranei
+    v_cantitate_aditionala NUMBER := 2; -- Cantitatea aditionala de hrana
 BEGIN
     actualizare_hrana(
         p_id_animal => v_id_animal,
@@ -459,7 +473,7 @@ END;
 
 -- cerinta 7
 
-CREATE OR REPLACE PROCEDURE AfisareAnimaleAdoptate(
+CREATE OR REPLACE PROCEDURE afisare_animale_adoptate(
     dataAdoptie IN DATE
 ) AS
     -- Declaram cursorul pentru animale adoptate
@@ -471,7 +485,7 @@ CREATE OR REPLACE PROCEDURE AfisareAnimaleAdoptate(
         WHERE ca.DATA = dataAdoptie;
 
     -- Declaram cursorul parametrizat pentru informatii suplimentare
-    CURSOR curInformatiiSuplimentare(p_ID_ANIMAL INT) IS
+    CURSOR informatii_suplimentare(p_ID_ANIMAL INT) IS
         SELECT cs.VACCINURI, cs.DATA_NASTERE, cs.ANTECEDENTE_MEDICALE
         FROM CARTE_DE_SANATATE cs
         WHERE cs.ID_ANIMAL = p_ID_ANIMAL;
@@ -485,6 +499,7 @@ BEGIN
         -- Salvam ID_ANIMAL in variabila
         v_ID_ANIMAL := animalAdoptat.ID_ANIMAL;
 
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------');
         DBMS_OUTPUT.PUT_LINE('Serie: ' || animalAdoptat.SERIE);
         DBMS_OUTPUT.PUT_LINE('Nume: ' || animalAdoptat.NUME);
         DBMS_OUTPUT.PUT_LINE('Rasa: ' || animalAdoptat.RASA);
@@ -492,9 +507,11 @@ BEGIN
         DBMS_OUTPUT.PUT_LINE('Sex: ' || animalAdoptat.SEX);
         DBMS_OUTPUT.PUT_LINE('Data sosire: ' || TO_CHAR(animalAdoptat.DATA_SOSIRE, 'YYYY-MM-DD'));
         DBMS_OUTPUT.PUT_LINE('Veterinar: ' || animalAdoptat.NUME_VETERINAR);
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+
 
         -- Obtinem informatii suplimentare folosind cursorul parametrizat
-        FOR infoSuplimentare IN curInformatiiSuplimentare(v_ID_ANIMAL) LOOP
+        FOR infoSuplimentare IN informatii_suplimentare(v_ID_ANIMAL) LOOP
             DBMS_OUTPUT.PUT_LINE('Vaccinuri: ' || infoSuplimentare.VACCINURI);
             DBMS_OUTPUT.PUT_LINE('Data nasterii: ' || TO_CHAR(infoSuplimentare.DATA_NASTERE, 'YYYY-MM-DD'));
             DBMS_OUTPUT.PUT_LINE('Antecedente medicale: ' || infoSuplimentare.ANTECEDENTE_MEDICALE);
@@ -502,18 +519,27 @@ BEGIN
 
         DBMS_OUTPUT.PUT_LINE('----------------------------------------');
     END LOOP;
-END AfisareAnimaleAdoptate;
+END afisare_animale_adoptate;
 /
 
 
 -- apelare 
     
 BEGIN
-    AfisareAnimaleAdoptate(TO_DATE('2023-08-02', 'YYYY-MM-DD'));
+    afisare_animale_adoptate(TO_DATE('2023-08-02', 'YYYY-MM-DD'));
 END;
 /
 
+BEGIN
+    afisare_animale_adoptate(TO_DATE('2023-08-03', 'YYYY-MM-DD'));
+END;
+/
 
+BEGIN
+    afisare_animale_adoptate(TO_DATE('2025-01-20', 'YYYY-MM-DD'));
+END;
+/
+    
 -- cerinta 8
 
 
@@ -700,7 +726,7 @@ CREATE OR REPLACE PACKAGE ANIMAL_SHET AS
     );
 
     -- Procedura pentru cerinta 7
-    PROCEDURE AfisareAnimaleAdoptate(
+    PROCEDURE afisare_animale_adoptate(
         dataAdoptie IN DATE
     );
 
