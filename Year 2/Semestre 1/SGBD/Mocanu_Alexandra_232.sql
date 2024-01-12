@@ -593,55 +593,6 @@ EXCEPTION
 END;
 /
 
--- cerinta 9
-
-
-CREATE OR REPLACE PROCEDURE informatii_animal(p_ID_Animal INT) IS
-  v_NumeAnimal VARCHAR2(255);
-  v_RasaAnimal VARCHAR2(255);
-  v_DenumireClinica VARCHAR2(255);
-  v_TipNevoieSector VARCHAR2(255);
-  v_NumeFarmacie VARCHAR2(255);
-  v_VarstaAnimal INT;
-BEGIN
-  -- Restul codului rămâne neschimbat
-
-  SELECT A.NUME, A.RASA, C.DENUMIRE, S.TIP_NEVOIE, F.NUME, A.VARSTA
-  INTO v_NumeAnimal, v_RasaAnimal, v_DenumireClinica, v_TipNevoieSector, v_NumeFarmacie, v_VarstaAnimal
-  FROM ANIMAL A
-  JOIN CLINICA_VETERINARA C ON A.ID_VETERINAR = C.ID_VETERINAR
-  JOIN SECTIE_SECTOR SS ON SS.ID_SECTIE = A.ID_CUSCA
-  JOIN SECTOR S ON S.ID_SECTOR = SS.ID_SECTOR
-  LEFT JOIN MED M ON M.ID_FARMACIE = S.ID_SECTOR
-  LEFT JOIN FARMACIE F ON F.ID_FARMACIE = M.ID_FARMACIE
-  WHERE A.ID_ANIMAL = p_ID_Animal;
-
-  -- Adăugăm o verificare pentru a afișa un mesaj diferit în funcție de vârsta animalului
-  IF v_VarstaAnimal < 1 THEN
-    DBMS_OUTPUT.PUT_LINE('Animalul este foarte tânăr.');
-  ELSIF v_VarstaAnimal BETWEEN 1 AND 5 THEN
-    DBMS_OUTPUT.PUT_LINE('Animalul este adult tânăr.');
-  ELSE
-    DBMS_OUTPUT.PUT_LINE('Animalul este adult.');
-  END IF;
-
-  -- Poți adăuga și alte operații suplimentare aici
-
-  DBMS_OUTPUT.PUT_LINE('Numele animalului cu ID ' || p_ID_Animal || ': ' || v_NumeAnimal);
-  DBMS_OUTPUT.PUT_LINE('Rasa animalului: ' || v_RasaAnimal);
-  DBMS_OUTPUT.PUT_LINE('Clinica veterinara asociata: ' || v_DenumireClinica);
-  DBMS_OUTPUT.PUT_LINE('Sector cu nevoia: ' || v_TipNevoieSector);
-  DBMS_OUTPUT.PUT_LINE('Farmacia asociata sectorului: ' || v_NumeFarmacie);
-EXCEPTION
-  WHEN NO_DATA_FOUND THEN
-    DBMS_OUTPUT.PUT_LINE('Animalul cu ID ' || p_ID_Animal || ' nu a fost gasit.');
-  WHEN TOO_MANY_ROWS THEN
-    DBMS_OUTPUT.PUT_LINE('S-au gasit prea multe înregistrari pentru animalul cu ID ' || p_ID_Animal || '.');
-  WHEN OTHERS THEN
-    DBMS_OUTPUT.PUT_LINE('Eroare necunoscuta: ' || SQLERRM);
-END informatii_animal;
-/
-
 
 -- cerinta 9
 
@@ -721,9 +672,6 @@ EXCEPTION
     DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
 END;
 /
-
-
-
 
     
 -- cerinta 10
@@ -810,7 +758,7 @@ DROP TABLE EXEMPLU;
 
 -- cerinta 13
 
-CREATE OR REPLACE PACKAGE ANIMAL_SHET AS
+CREATE OR REPLACE PACKAGE ANIMAL_SHEET AS
     -- Tipurile de date
     TYPE NumereAnimale IS TABLE OF NUMBER INDEX BY PLS_INTEGER;
     TYPE HranaCantitate IS TABLE OF NUMBER INDEX BY VARCHAR2(255);
@@ -843,13 +791,13 @@ CREATE OR REPLACE PACKAGE ANIMAL_SHET AS
 
     -- Trigger pentru cerinta 12
     PROCEDURE trg_ldd_trigger;
-END ANIMAL_SHET;
+END ANIMAL_SHEET;
 /
 
 
--- cerinta 14
+-- Cerinta 14
 
-CREATE OR REPLACE PACKAGE BODY ANIMAL_SHET AS
+CREATE OR REPLACE PACKAGE BODY ANIMAL_SHEET AS
     -- Tipurile de date complexe
     TYPE DetaliiAnimal IS RECORD (
         NUME VARCHAR2(255),
@@ -932,5 +880,79 @@ CREATE OR REPLACE PACKAGE BODY ANIMAL_SHET AS
         -- Returnarea cursorului
         RETURN v_cursor;
     END cursor_dependent;
-END ANIMAL_SHET;
+
+    
+    -- Procedura pentru cerinta 7
+    PROCEDURE afisare_animale_adoptate(
+        dataAdoptie IN DATE
+    ) IS
+        -- Definirea variabilei de tip NumereAnimale
+        numere_animele NumereAnimale;
+
+    BEGIN
+        -- Initializarea variabilei de tip NumereAnimale
+        numere_animele(1) := 1;
+        numere_animele(2) := 2;
+
+        -- Afisarea numerelor animalelor adoptate
+        FOR i IN 1..numere_animele.COUNT LOOP
+            DBMS_OUTPUT.PUT_LINE('Animal adoptat: ' || numere_animele(i) || ', Data adoptiei: ' || TO_CHAR(dataAdoptie, 'DD-MON-YYYY'));
+        END LOOP;
+    END afisare_animale_adoptate;
+
+    -- Functia pentru cerinta 8
+    FUNCTION obt_medicament_animal(p_ID_Animal INT) RETURN VARCHAR2 IS
+        -- Definirea variabilei medicament
+        medicament VARCHAR2(255);
+
+    BEGIN
+        -- Setarea valorii default pentru medicament
+        medicament := 'Nu are medicament';
+
+        -- Returnarea valorii medicamentului
+        RETURN medicament;
+    END obt_medicament_animal;
+
+    -- Procedura pentru cerinta 9
+    PROCEDURE informatii_animal(p_ID_Animal INT) IS
+        -- Definirea variabilei de tip DetaliiAnimal
+        detalii_animal DetaliiAnimal;
+
+    BEGIN
+        -- Obtine detaliile animalelor
+        SELECT A.NUME, A.RASA, A.VARSTA, A.SEX, V.NUME || ' ' || V.PRENUME
+        INTO detalii_animal
+        FROM ANIMAL A
+        JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP
+        WHERE A.ID_ANIMAL = p_ID_Animal;
+
+        -- Afisarea detaliilor animalelor
+        DBMS_OUTPUT.PUT_LINE('Detalii despre animal: ' || detalii_animal.NUME || ', ' || detalii_animal.RASA || ', ' ||
+                            detalii_animal.VARSTA || ' ani, ' || detalii_animal.SEX || ', Veterinar: ' || detalii_animal.VETERINAR);
+    END informatii_animal;
+
+    -- Trigger pentru cerinta 10
+    -- Trigger de tip LMD la nivel de comanda
+    PROCEDURE trg_lmd_comanda IS
+    BEGIN
+        -- Implementarea logicii pentru trigger-ul LMD la nivel de comanda
+        NULL;
+    END trg_lmd_comanda;
+
+    -- Trigger pentru cerinta 11
+    -- Trigger de tip LMD la nivel de linie
+    PROCEDURE trg_lmd_linie IS
+    BEGIN
+        -- Implementarea logicii pentru trigger-ul LMD la nivel de linie
+        NULL;
+    END trg_lmd_linie;
+
+    -- Trigger pentru cerinta 12
+    PROCEDURE trg_ldd_trigger IS
+    BEGIN
+        -- Implementarea logicii pentru trigger-ul LDD
+        NULL;
+    END trg_ldd_trigger;
+
+END ANIMAL_SHEET;
 /
