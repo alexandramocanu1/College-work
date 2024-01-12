@@ -484,20 +484,16 @@ CREATE OR REPLACE PROCEDURE afisare_animale_adoptate(
         JOIN VETERINAR v ON a.ID_VETERINAR = v.CNP
         WHERE ca.DATA = dataAdoptie;
 
-    -- Declaram cursorul parametrizat pentru informatii suplimentare
-    CURSOR informatii_suplimentare(p_ID_ANIMAL INT) IS
-        SELECT cs.VACCINURI, cs.DATA_NASTERE, cs.ANTECEDENTE_MEDICALE
-        FROM CARTE_DE_SANATATE cs
-        WHERE cs.ID_ANIMAL = p_ID_ANIMAL;
-
     -- Declaram variabila pentru ID_ANIMAL
     v_ID_ANIMAL INT;
+    v_au_fost_adoptate BOOLEAN := FALSE;
 
 BEGIN
     -- Parcurgem animalele adoptate
     FOR animalAdoptat IN curAnimaleAdoptate LOOP
         -- Salvam ID_ANIMAL in variabila
         v_ID_ANIMAL := animalAdoptat.ID_ANIMAL;
+        v_au_fost_adoptate := TRUE;
 
         DBMS_OUTPUT.PUT_LINE('----------------------------------------');
         DBMS_OUTPUT.PUT_LINE('Serie: ' || animalAdoptat.SERIE);
@@ -509,9 +505,12 @@ BEGIN
         DBMS_OUTPUT.PUT_LINE('Veterinar: ' || animalAdoptat.NUME_VETERINAR);
         DBMS_OUTPUT.PUT_LINE('----------------------------------------');
 
-
         -- Obtinem informatii suplimentare folosind cursorul parametrizat
-        FOR infoSuplimentare IN informatii_suplimentare(v_ID_ANIMAL) LOOP
+        FOR infoSuplimentare IN (
+            SELECT cs.VACCINURI, cs.DATA_NASTERE, cs.ANTECEDENTE_MEDICALE
+            FROM CARTE_DE_SANATATE cs
+            WHERE cs.ID_ANIMAL = v_ID_ANIMAL
+        ) LOOP
             DBMS_OUTPUT.PUT_LINE('Vaccinuri: ' || infoSuplimentare.VACCINURI);
             DBMS_OUTPUT.PUT_LINE('Data nasterii: ' || TO_CHAR(infoSuplimentare.DATA_NASTERE, 'YYYY-MM-DD'));
             DBMS_OUTPUT.PUT_LINE('Antecedente medicale: ' || infoSuplimentare.ANTECEDENTE_MEDICALE);
@@ -519,12 +518,15 @@ BEGIN
 
         DBMS_OUTPUT.PUT_LINE('----------------------------------------');
     END LOOP;
+
+    IF NOT v_au_fost_adoptate THEN
+        DBMS_OUTPUT.PUT_LINE('Nu au fost adoptate animale in data introdusa.');
+    END IF;
 END afisare_animale_adoptate;
 /
 
+-- apelare
 
--- apelare 
-    
 BEGIN
     afisare_animale_adoptate(TO_DATE('2023-08-02', 'YYYY-MM-DD'));
 END;
@@ -539,7 +541,8 @@ BEGIN
     afisare_animale_adoptate(TO_DATE('2025-01-20', 'YYYY-MM-DD'));
 END;
 /
-    
+
+ 
 -- cerinta 8
 
 
