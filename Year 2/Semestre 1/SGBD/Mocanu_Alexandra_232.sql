@@ -546,7 +546,7 @@ END;
 -- cerinta 8
 
 
-CREATE OR REPLACE FUNCTION ObtineMedicamentAnimal(p_ID_Animal INT)
+CREATE OR REPLACE FUNCTION obt_medicament_animal(p_ID_Animal INT)
 RETURN VARCHAR2 IS
   v_Medicament VARCHAR2(255);
 BEGIN
@@ -562,17 +562,17 @@ EXCEPTION
     RETURN 'Animalul nu are informații în carnetul de sanatate.';
   WHEN OTHERS THEN
     RETURN 'Eroare necunoscuta: ' || SQLERRM;
-END ObtineMedicamentAnimal;
+END obt_medicament_animal;
 /
 
-
+    
 -- apelare
-
+-- ID animal valid
 DECLARE
-  v_ID_Animal INT := 1; -- Schimbați ID-ul animalului dupa nevoie
+  v_ID_Animal INT := 1;
   v_Resultat VARCHAR2(255);
 BEGIN
-  v_Resultat := ObtineMedicamentAnimal(v_ID_Animal);
+  v_Resultat := obt_medicament_animal(v_ID_Animal);
   DBMS_OUTPUT.PUT_LINE('Medicament recomandat pentru animalul cu ID ' || v_ID_Animal || ': ' || v_Resultat);
 EXCEPTION
   WHEN OTHERS THEN
@@ -580,11 +580,23 @@ EXCEPTION
 END;
 /
 
+-- ID animal invalid
+DECLARE
+  v_ID_Animal INT := 15688324;
+  v_Resultat VARCHAR2(255);
+BEGIN
+  v_Resultat := obt_medicament_animal(v_ID_Animal);
+  DBMS_OUTPUT.PUT_LINE('Medicament recomandat pentru animalul cu ID ' || v_ID_Animal || ': ' || v_Resultat);
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
+END;
+/
 
 -- cerinta 9
 
 
-CREATE OR REPLACE PROCEDURE Problema9(p_ID_Animal INT) IS
+CREATE OR REPLACE PROCEDURE informatii_animal(p_ID_Animal INT) IS
   v_NumeAnimal VARCHAR2(255);
   v_RasaAnimal VARCHAR2(255);
   v_DenumireClinica VARCHAR2(255);
@@ -615,7 +627,7 @@ EXCEPTION
     DBMS_OUTPUT.PUT_LINE('S-au gasit prea multe înregistrari pentru animalul cu ID ' || p_ID_Animal || '.');
   WHEN OTHERS THEN
     DBMS_OUTPUT.PUT_LINE('Eroare necunoscuta: ' || SQLERRM);
-END Problema9;
+END informatii_animal;
 /
 
 
@@ -624,7 +636,7 @@ END Problema9;
 DECLARE
   v_ID_Animal INT := 1; -- Schimba ID-ul animalului dupa nevoie
 BEGIN
-  Problema9(v_ID_Animal);
+  informatii_animal(v_ID_Animal);
 EXCEPTION
   WHEN OTHERS THEN
     DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
@@ -734,10 +746,10 @@ CREATE OR REPLACE PACKAGE ANIMAL_SHET AS
     );
 
     -- Functia pentru cerinta 8
-    FUNCTION ObtineMedicamentAnimal(p_ID_Animal INT) RETURN VARCHAR2;
+    FUNCTION obt_medicament_animal(p_ID_Animal INT) RETURN VARCHAR2;
 
     -- Procedura pentru cerinta 9
-    PROCEDURE Problema9(p_ID_Animal INT);
+    PROCEDURE informatii_animal(p_ID_Animal INT);
 
     -- Trigger pentru cerinta 10
     -- Trigger de tip LMD la nivel de comanda
