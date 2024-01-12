@@ -684,14 +684,14 @@ BEGIN
         DBMS_OUTPUT.PUT_LINE('----------------------------------------');
   END IF;
 
-  DBMS_OUTPUT.PUT_LINE('Numele animalului cu ID ' || p_ID_Animal || ': ' || v_NumeAnimal);
-  DBMS_OUTPUT.PUT_LINE('Rasa animalului: ' || v_RasaAnimal);
-  DBMS_OUTPUT.PUT_LINE('Clinica veterinară asociată: ' || v_DenumireClinica);
-  DBMS_OUTPUT.PUT_LINE('Sector cu nevoie: ' || v_TipNevoieSector);
-  --DBMS_OUTPUT.PUT_LINE('Farmacia asociată sectorului: ' || v_NumeFarmacie);
+      DBMS_OUTPUT.PUT_LINE('Numele animalului cu ID ' || p_ID_Animal || ': ' || v_NumeAnimal);
+      DBMS_OUTPUT.PUT_LINE('Rasa animalului: ' || v_RasaAnimal);
+      DBMS_OUTPUT.PUT_LINE('Clinica veterinară asociată: ' || v_DenumireClinica);
+ 	  DBMS_OUTPUT.PUT_LINE('Sector cu nevoie: ' || v_TipNevoieSector);
+	  DBMS_OUTPUT.PUT_LINE('----------------------------------------');
 EXCEPTION
   WHEN NO_DATA_FOUND THEN
-    DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+	DBMS_OUTPUT.PUT_LINE('----------------------------------------');
     DBMS_OUTPUT.PUT_LINE('Animalul cu ID ' || p_ID_Animal || ' nu a fost găsit.');
     DBMS_OUTPUT.PUT_LINE('----------------------------------------');
   WHEN OTHERS THEN
