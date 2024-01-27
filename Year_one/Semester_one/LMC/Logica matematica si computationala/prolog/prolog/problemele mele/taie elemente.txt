@@ -1,0 +1,13 @@
+tai([_]).
+tai([_|T]):- write(T),nl.
+
+nlista([L|T],0):-write([L|T]),nl.
+nlista([_],_).
+nlista([L|T],0):-write([L|T]),nl.
+nlista([L|T],N):- length([L|T],X), X == N ,write([]),nl.
+nlista([L|T],N):-length([L|T],X),X<N,write("Prea scurta lista"),nl.
+nlista([L|T],N):-length([L|T],X),X>=N,N>=1, M is N-1,Lung is X-N+1,check([L|T],Lung) ,nlista(T,M).
+check(L,N):-length(L,X),X == N,nl,tai(L).
+check(_,_).
+
+%afiseaza lista de 2ori daca N != 0 din cauza base-case-ului,daca nu puneam write acolo nu ar fi afisat pt N=0.

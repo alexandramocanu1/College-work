@@ -1,0 +1,20 @@
+Exercit¸iul 1
+Definit¸i un predicat flatten/2 care aplatizeaz˘a structura unei liste.
+
+flatten([],[]).
+flatten([H|T],[H|R]) :- not(is_list(H)), flatten(T,R).
+flatten([H|T],R) :- is_list(H), flatten(H,X), flatten(T,Y), append(X,Y,R).
+
+flattend(L,R) :- flattendh(L,(R,[])).
+flattendh([],(R,R)).
+flattendh([H|T], ([H|R],S)) :- not(is_list(H)), flattendh(T,(R,S)).
+flattendh([H|T],(R,S)) :- is_list(H), flattendh(H,(R,N)), flattendh(T,(N,S)).
+
+Exercit¸iul 2
+Reamintim, tot din solut¸iile Laboratorului 3, definirea predicatului
+quicksort/2:
+
+quicksortd(L,R) :- quicksortdh(L,(R,[])).
+quicksortdh([],(R,R)).
+quicksortdh([H|T],(R,S)) :- split(H,T,A,B), quicksortdh(A,(R,[H|N])),
+                                            quicksortdh(B,(N,S)).

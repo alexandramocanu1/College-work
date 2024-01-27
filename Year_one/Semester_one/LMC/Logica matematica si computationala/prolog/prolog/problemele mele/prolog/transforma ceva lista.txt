@@ -1,0 +1,2 @@
+trans([],[],_).
+trans([a|X],[Chr|Y],Chr):-trans(X,Y,Chr).

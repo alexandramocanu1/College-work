@@ -1,0 +1,5 @@
+par([],[]).
+par([H|T],[H|B]):-par(T,B),0 is H mod 2.
+par([_|T],B):-par(T,B).
+
+even(List,X):-findall(Y,(member(Y,List),0 is Y mod 2) ,X).

@@ -1,0 +1,2 @@
+fac(0,1).
+fac(N,R):- M is N-1 , fac(M,X),R is N*X.

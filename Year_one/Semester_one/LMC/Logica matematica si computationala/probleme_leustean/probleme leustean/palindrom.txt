@@ -1,0 +1,4 @@
+rev([],[]).
+rev([H|T], L) :- rev(T,N), append(N,[H],L).
+
+palindrome(L) :- rev(L,L).

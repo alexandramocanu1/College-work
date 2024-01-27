@@ -1,0 +1,3 @@
+dupli([],[]).
+dupli([H|T],M):- dupli(T,M),member(H,M).
+dupli([H|N],[H|M]):-  dupli(N,M),not(member(H,M)).

@@ -1,0 +1,32 @@
+female(mary).
+female(sandra).
+female(juliet).
+female(lisa).
+male(peter).
+male(paul).
+male(dony).
+male(bob).
+male(harry).
+parent(bob, lisa).
+parent(bob, paul).
+parent(bob, mary).
+parent(juliet, lisa).
+parent(juliet, paul).
+parent(juliet, mary).
+parent(peter, harry).
+parent(lisa, harry).
+parent(mary, dony).
+parent(mary, sandra).
+
+father_of(Father,Child):- parent(Father,Child) , male(Father).
+mother_of(Mother,Child):- parent(Mother,Child) , female(Mother).
+grandfather_of(Grandpa,Child):-parent(Grandpa,Father),parent(Father,Child),male(Grandpa).
+grandmother_of(Grandma,Child):-parent(Grandma,Mother),parent(Mother,Child),female(Grandma).
+sister_of(Sister,Child):-parent(Parent,Child),parent(Parent,Sister),female(Sister),Child\==Sister.
+brother_of(Brother,Child):-parent(Parent,Child),parent(Parent,Brother),male(Brother),Child\==Brother.
+aunt_of(Aunt,Child):-parent(Parent,Child),sister_of(Aunt,Parent).
+uncle_of(Uncle,Child):-parent(Parent,Child),brother_of(Uncle,Parent).    
+    
+% not_parent(X,Y):- not(parent(X,Y)).
+not_parent(X,Y):- (   (male(X);female(X)),(male(Y);female(Y)), X\=Y,not(parent(X,Y))  ).
+    

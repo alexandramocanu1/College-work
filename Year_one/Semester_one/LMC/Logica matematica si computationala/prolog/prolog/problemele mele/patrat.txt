@@ -1,0 +1,12 @@
+linie(0,_).
+linie(N,Chr):- N>=1,write(Chr),M is N-1,linie(M,Chr).
+patrat(0,_,_).
+patrat(L,C,Chr):- L>=1, linie(C,Chr),nl,M is L-1,patrat(M,C,Chr).
+square(N,Chr):- patrat(N,N,Chr).
+
+pirinv(N,Chr):- N>=1 , write(Chr),M is N-1 , linie(M,Chr),nl,pirinv(M,Chr).
+pirinv(0,_).
+
+pir(_,0,_).
+pir(N,M,Chr):- P is M-1,R is N-P,linie(R,Chr),nl,O is N-R,pir(N,O,Chr).
+pira(N,Chr):-pir(N,N,Chr).

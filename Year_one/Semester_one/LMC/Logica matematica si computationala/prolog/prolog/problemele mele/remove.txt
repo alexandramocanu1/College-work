@@ -1,0 +1,5 @@
+remover( _, [], []).
+remover( R, [R|T], T).
+remover( R, [H|T], [H|T2]) :- H \= R, remover( R, T, T2).
+
+%remove prima aparitie

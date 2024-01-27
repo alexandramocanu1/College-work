@@ -1,0 +1,3 @@
+sterge(N,L,X):- length(X,M),length(L,Y),M is Y-N,append(_,X,L).
+                                       
+

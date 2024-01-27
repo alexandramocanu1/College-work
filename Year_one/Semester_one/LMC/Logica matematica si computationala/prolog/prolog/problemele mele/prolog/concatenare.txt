@@ -1,0 +1,2 @@
+conc([],L,L).
+conc([H|T],L,[H|Y]):-conc(T,L,Y).

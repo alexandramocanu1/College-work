@@ -1,0 +1,10 @@
+drop(List, N, Result) :-
+    drop(List, N, N, Result).
+
+drop([], _, _, []).
+drop([_|Tail], N, 1, Result) :-
+    drop(Tail, N, N, Result).
+drop([Head|Tail], N, Counter, [Head|Result]) :-
+    Counter > 1,
+    NewCounter is Counter - 1,
+    drop(Tail, N, NewCounter, Result).

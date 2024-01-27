@@ -1,0 +1,7 @@
+%produs scalar
+scalarMult(_,[],[]).
+scalarMult(N,[H|T],[A|B]):- A is H*N , scalarMult(N,T,B).
+
+%suma chestiilor din produs
+dot([],[],0).
+dot([H|T],[A|B],X):- dot(T,B,N) , X is N + H*A.

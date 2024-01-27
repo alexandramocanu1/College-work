@@ -1,0 +1,5 @@
+prefix([],[]).
+prefix(P,L):- append(P,_,L).
+
+suffix([],[]).
+suffix(P,L):- append(_,P,L).

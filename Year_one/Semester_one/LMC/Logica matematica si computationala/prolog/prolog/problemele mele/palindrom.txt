@@ -1,0 +1,6 @@
+rev([],[]).
+rev([H|T],X):-rev(T,Y),append(Y,[H],X).
+
+%rev da reversu ,pali da daca e palindrom.
+
+pali(L):- rev(L,X), L == X.

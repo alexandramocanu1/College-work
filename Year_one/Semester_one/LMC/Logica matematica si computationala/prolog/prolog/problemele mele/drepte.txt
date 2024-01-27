@@ -1,0 +1,3 @@
+verticala((X,_),(Y,_)):- X=Y.
+orizontala((_,X),(_,X)).
+oblic((X,Y),(H,Z)):- not(verticala((X,Y),(H,Z))) , not(orizontala((X,Y),(H,Z))).

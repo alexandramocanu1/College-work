@@ -1,0 +1,2 @@
+numar(0,[]).
+numar(X,[_|T]):- numar(A,T), X is A+1.

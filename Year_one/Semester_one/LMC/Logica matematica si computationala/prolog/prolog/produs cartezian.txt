@@ -1,0 +1,2 @@
+bagof((X,Y),
+(member(X,[1,2,3]),member(Y,[0,1,2,3,4,5]),X<Y),L).

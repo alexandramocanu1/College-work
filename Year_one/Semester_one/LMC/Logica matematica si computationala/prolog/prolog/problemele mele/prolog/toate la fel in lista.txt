@@ -1,0 +1,2 @@
+all([],_).
+all([Chr|T],Chr):-all(T,Chr).

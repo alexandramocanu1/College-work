@@ -1,0 +1,351 @@
+Exercit¸iul 2
+Fisierul ex2.pl contine o baza de cunostinte reprezentand un arbore
+genealogic
+
+father_of(F,C):- male(F), parent(F,C).
+mother_of(M,C):- female(M),parent(M,C).
+grandmother_of(G,C):- mother_of(G,P), parent(P,C).
+grandfather_of(G,C):- father_of(G,P), parent(P,C).
+sister_of(S,P) :- parent(Q,S), parent(Q,P), female(S), S \= P.
+brother_of(B,P):- parent(Q,B), parent(Q,P), male(B), B \= P.
+aunt_of(A,P) :- sister_of(A,B), parent(B,P).
+uncle_of(A,B) :- brother_of(A,C), parent(C,B).
+
+
+Exercit¸iul 3: negatia
+Folosind baza anterioara (arbore genealogic) testati predicatul
+not parent:
+
+% not_parent(X,Y) :- not(parent(X,Y)).
+not_parent(X,Y) :- (male(X); female(X)), (male(Y); female(Y)), X\=Y, not(parent(X,Y)).
+
+Exercitiul 1: distanta dintre doua puncte
+Definiti un predicat distance/3 pentru a calcula distanta dintre doua
+puncte ıntr-un plan 2-dimensional. Punctele sunt date ca perechi de
+coordonate.
+
+distance((A,B),(C,D),X) :- X is sqrt((C-A)**2 + (D-B)**2).
+
+Exemple:
+?- distance((0,0), (3,4), X).
+X = 5.0
+?- distance((-2.5,1), (3.5,-4), X).
+X = 7.810249675906654
+
+
+Exercit¸iul 2: numerele Fibonacci
+Scrieti un predicat fib/2 pentru a calcula, pentru orice n, numarul de pe
+pozitia n din sirul Fibonacci. Secventa de numere Fibonacci este definita
+prin: F0 := 1, F1 := 1, iar pentru orice n ≥ 2,
+Fn := Fn−1 + Fn−2.
+
+
+fib(0,1).
+fib(1,1).
+fib(N,X) :- 2 =< N, M is N - 1, fib(M, Y), P is N - 2, fib(P, Z), X is Y + Z.
+
+fibo(0,0,1).
+fibo(1,1,1).
+fibo(N,Z,X) :- 2 =< N, M is N-1, fibo(M,Y,Z), X is Y + Z.
+
+fibg(N,X) :- fibo(N,_,X).
+
+?- fib(1,X).
+X=1.
+true
+
+Exercit¸iul 3: afisarea unui patrat de caractere
+Scriet¸i un program ın Prolog pentru a afisa un patrat de n × n caractere
+pe ecran.
+Denumiti predicatul square/2. Primul argument este un numar natural
+diferit de 0, iar al doilea un caracter care trebuie afisat.
+
+
+line(0,_).
+line(X,C):- X>0, Y is X-1, write(C), line(Y,C).
+
+rectangle(0,_,_):-nl.
+rectangle(X,Z,C):- X>0, Y is X-1, line(Z,C), nl, rectangle(Y,Z,C).
+square(X,C) :- rectangle(X,X,C).
+
+Exemplu:
+?- square(5, ’* ’).
+
+
+Exercit¸iul 4
+A) Definiti un predicat all a/1 care primeste ca argument o lista ¸si care
+verifica daca argumentul sau este format doar din a-uri.
+?- all a([a,a,a,a]).
+?- all a([a,a,A,a]).
+
+
+all_a([]).
+all_a([a|X]):-all_a(X).
+
+
+B) Scrieti un predicat trans a b/2 care traduce o lista de a-uri ıntr-o
+lista de b-uri. trans a b(X,Y) trebuie s˘a fie adevarat daca X este o lisa
+de a-uri si Y este o lista de b-uri, iar cele doua liste au lungimi egale.
+
+trans_a_b([],[]).
+trans_a_b([a|X],[b|Y]):-trans_a_b(X,Y).
+
+
+Exercitiul 5: Operatii cu vectori
+A) Scrieti un predicat scalarMult/3, al carui prim argument este un
+ıntreg, al doilea argument este o lista de ıntregi, iar al treilea argument
+este rezultatul ınmultirii cu scalari al celui de-al doilea argument cu
+primul.
+
+scalarMult(_,[],[]).
+scalarMult(N,[H|T],[X|Y]) :- X is N * H, scalarMult(N,T,Y).
+
+
+B) Scrieti un predicat dot/3 al carui prim argument este o lista de
+ıntregi, al doilea argument este o lista de ıntregi de lungimea primeia, iar
+al treilea argument este produsul scalar dintre primele doua argumente.
+
+dot([],[],0).
+dot([H|T],[X|Y],M) :- dot(T,Y,N), M is N + H * X.
+
+C) Scriet¸i un predicat max/2 care cauta elementul maxim ıntr-o lista de
+numere naturale.
+
+
+max([],0).
+max([H|T],Y) :- max(T,Y), Y >= H.
+max([H|T],H) :- max(T,Y), H > Y.
+
+Exercitiul 1
+Definiti un predicat palindrome/1 care este adevarat daca lista primita
+ca argument este palindrom (lista citit˘a de la stanga la dreapta este
+identica cu lista citit˘a de la dreapta la stanga).
+
+rev([],[]).
+rev([H|T], L) :- rev(T,N), append(N,[H],L).
+
+palindrome(L) :- rev(L,L).
+
+
+Exercitiul 2
+Definiti un predicat remove duplicates/2 care sterge toate duplicatele
+din lista data ca prim argument si ıntoarce rezultatul ın al doilea
+argument.
+
+remove_duplicates([],[]).
+remove_duplicates([H|L],M) :- remove_duplicates(L,M), member(H,M).
+remove_duplicates([H|L],[H|M]) :- remove_duplicates(L,M), not(member(H,M)).
+
+
+Exercitiul 3
+Definiti un predicat atimes/3 care sa fie adevarat exact atunci cand
+elementul din primul argument apare ın lista din al doilea argument de
+numarul de ori precizat ın al treilea argument.
+
+
+atimes(_,[],0).
+atimes(N,[N|T],X) :- atimes(N,T,Y), X is Y + 1.
+atimes(N,[H|T],X) :- atimes(N,T,X), N \== H.
+
+Exercitiul 4: scrieti regulile care definesc comportamentul predicatului
+ajutator insert/3.
+Predicatul quicksort/2 sorteaza lista de pe primul argument folosind
+algoritmul quicksort.
+
+
+insertsort([],[]).
+insertsort([H|T],L) :- insertsort(T,L1), insert(H,L1,L).
+
+insert(X,[],[X]).
+insert(X,[H|T],[X|[H|T]]) :- X < H.
+insert(X,[H|T],[H|L]) :- X >= H, insert(X,T,L).
+
+
+Exercitiul 5: scrieti regulile care definesc comportamentul predicatului
+ajutator split/4.
+
+quicksort([],[]).
+quicksort([H|T],L) :- split(H,T,A,B), quicksort(A,M), quicksort(B,N),
+                        append(M,[H|N],L).
+split(_,[],[],[]).
+split(X,[H|T],[H|A],B) :- H < X, split(X,T,A,B).
+split(X,[H|T],A,[H|B]) :- H >= X, split(X,T,A,B).
+
+Exercit¸iul 1
+Definit¸i un predicat listaNelem/3 astfel ˆıncˆat, pentru orice L, N, M,
+listaNelem(L,N,M) este adev˘arat exact atunci cˆand M este o list˘a cu N
+elemente care sunt toate elemente ale lui L (cu eventuale repetit¸ii).
+
+
+listaNelem(_,0,[]).
+listaNelem(L,N,[H|T]) :- N > 0, P is N - 1, member(H,L), listaNelem(L,P,T).
+
+Exercit¸iul 2: cuvinte ˆıncruci¸sate
+
+definit¸i un predicat crosswd/6 care calculeaz˘a toate variantele ˆın care
+putet¸i completa grila. Primele trei argumente trebuie s˘a fie cuvintele pe
+vertical˘a, de la stˆanga la dreapta (V1, V2, V3), iar urm˘atoarele trei
+argumente trebuie s˘a fie cuvintele pe orizontal˘a, de sus ˆın jos (H1, H2,
+H3).
+
+
+word(abalone,a,b,a,l,o,n,e).
+word(abandon,a,b,a,n,d,o,n).
+word(enhance,e,n,h,a,n,c,e).
+word(anagram,a,n,a,g,r,a,m).
+word(connect,c,o,n,n,e,c,t).
+word(elegant,e,l,e,g,a,n,t).
+
+crosswd(V1,V2,V3,H1,H2,H3) :-
+                word(V1,_,A,_,B,_,C,_),
+                word(V2,_,D,_,E,_,F,_),
+                word(V3,_,G,_,H,_,I,_),
+                word(H1,_,A,_,D,_,G,_),
+                word(H2,_,B,_,E,_,H,_),
+                word(H3,_,C,_,F,_,I,_).
+
+Exercit¸iul 3: labirint
+Urm˘atoarele fapte (care se continu˘a pe slide-ul urm˘ator) descriu un
+labirint:
+
+path(X,X,[X]).
+path(X,Y,[X|L]) :- connected(X,Z), path(Z,Y,L).
+
+pathc(X,Y) :- path(X,Y,_).
+
+Exercit¸iul 4: cel mai lung cuvˆant
+Acest exemplu provine din
+Ulle Endriss, Lecture Notes – An Introduction to Prolog Programming.
+¸si a mai fost folosit ˆın trecut ˆın laboratoare de programare logic˘a ˆın FMI.
+
+word_letters(X,Y) :- atom_chars(X,Y).
+
+liminus([C|L],C,L).
+liminus([D|L],C,[D|M]) :- D\==C, liminus(L,C,M).
+
+cover([],_).
+cover([H|T],L) :- liminus(L,H,M), cover(T,M).
+
+solution(Letters, Word, Len) :- word(Word), word_letters(Word,WordLetters), length(WordLetters,Len), cover(WordLetters, Letters).
+
+search_solution(_,'no solution',0).
+search_solution(ListLetters,Word,X) :- X > 0, solution(ListLetters,Word,X).
+search_solution(ListLetters,Word,X) :- X > 0, not(solution(ListLetters,Word,X)), Y is X-1, search_solution(ListLetters,Word,Y).
+
+topsolution(ListLetters,Word) :- length(ListLetters, MaxScore),  search_solution(ListLetters,Word,MaxScore).
+
+Exercit¸iul 1
+Definit¸i un predicat vars/2 care este adev˘arat exact atunci cˆand primul
+argument este o formul˘a, iar al doilea argument este lista care reprezint˘a
+mult¸imea variabilelor care apar ˆın ea.
+
+
+vars(V,[V]) :- atom(V).
+vars(non(X),S) :- vars(X,S).
+vars(si(X,Y),S) :- vars(X,T), vars(Y,U), union(T,U,S).
+vars(sau(X,Y),S) :- vars(X,T), vars(Y,U), union(T,U,S).
+vars(imp(X,Y),S) :- vars(X,T), vars(Y,U), union(T,U,S).
+
+
+Exercit¸iul 2
+ˆIn teoria mult¸imilor, graficul unei funct¸ii de la o mult¸ime A la o mult¸ime
+B este ”
+implementat” ca o submult¸ime a lui A × B.
+ˆIn acest fel vom
+implementa ¸si evalu˘arile propozit¸ionale de forma e : V → {0, 1}, unde V,
+spre deosebire de curs/seminar, va fi o mult¸ime (list˘a) finit˘a de variabile
+
+val(V,[(V,A)|_],A).
+val(V,[_|T],A) :- val(V,T,A).
+
+%Solutie alternativa:
+
+val(V,E,A) :- member((V,A),E).
+
+
+Exercit¸iul 3
+Definit¸i predicate bnon/2, bsi/3, bsau/3, bimp/3 care implementeaz˘a
+operat¸iile ¬, ∧, ∨, → pe mult¸imea {0, 1}.
+
+bnon(0,1). bnon(1,0).
+bsi(0,0,0). bsi(0,1,0). bsi(1,0,0). bsi(1,1,1).
+bsau(0,0,0). bsau(0,1,1). bsau(1,0,1). bsau(1,1,1).
+% X -> Y = (non X) sau Y
+bimp(X,Y,Z) :- bnon(X,NX), bsau(NX,Y,Z).
+
+
+Exercit¸iul 4
+Definit¸i un predicat eval/3, astfel ˆıncˆat, pentru orice formul˘a X ¸si orice
+evaluare E, avem c˘a, pentru orice A, eval(X,E,A) este adev˘arat exact
+atunci cˆand A este ”
+E
++(X)”.
+
+
+eval(V,E,A) :- atom(V), val(V,E,A).
+eval(non(X),E,A) :- eval(X,E,B), bnon(B,A).
+eval(si(X,Y),E,A) :- eval(X,E,B), eval(Y,E,C), bsi(B,C,A).
+eval(sau(X,Y),E,A) :- eval(X,E,B), eval(Y,E,C), bsau(B,C,A).
+eval(imp(X,Y),E,A) :- eval(X,E,B), eval(Y,E,C), bimp(B,C,A).
+
+
+Exercit¸iul 5
+Definit¸i un predicat evals/3, astfel ˆıncˆat, pentru orice formul˘a X ¸si orice
+list˘a de evalu˘ari Es, avem c˘a, pentru orice As, evals(X,Es,As) este
+adev˘arat exact atunci cˆand As este lista rezultatelor evalu˘arii lui X ˆın
+fiecare dintre elementele lui Es.
+
+
+evals(_,[],[]).
+evals(X,[E|Es],[A|As]) :- eval(X,E,A), evals(X,Es,As).
+
+
+Exercit¸iul 6
+Definit¸i un predicat evs/2, astfel ˆıncˆat, pentru orice list˘a de variabile S,
+avem c˘a, pentru orice Es, evs(S,Es) este adev˘arat exact atunci cˆand Es
+este lista evalu˘arilor definite pe S.
+
+evs([],[[]]).
+evs([V|T],Es) :- evs(T,Esp), adauga(V,Esp,Es).
+adauga(_,[],[]).
+adauga(V,[E|T], [[(V,0)|E],[(V,1)|E]|Es]) :- adauga(V,T,Es).
+
+
+Exercit¸iul 7
+Definit¸i un predicat all evals/2, astfel ˆıncˆat, pentru orice formul˘a X,
+avem c˘a, pentru orice As, all evals(X,As) este adev˘arat exact atunci
+cˆand As este lista rezultatelor evalu˘arii lui X ˆın fiecare dintre elementele
+listei evalu˘arilor definite pe Var(X).
+
+all_evals(X,As) :- vars(X,S), evs(S,Es), evals(X,Es,As).
+
+
+Exercit¸iul 8
+Definit¸i un predicat taut/1, astfel ˆıncˆat, pentru orice formul˘a X, avem c˘a
+taut(X) este adev˘arat exact atunci cˆand X este tautologie.
+
+
+all_ones([]).
+all_ones([1|T]) :- all_ones(T).
+taut(X) :- all_evals(X,As), all_ones(As).
+
+Exercit¸iul 1
+Definit¸i un predicat flatten/2 care aplatizeaza structura unei liste.
+
+flatten([],[]).
+flatten([H|T],[H|R]) :- not(is_list(H)), flatten(T,R).
+flatten([H|T],R) :- is_list(H), flatten(H,X), flatten(T,Y), append(X,Y,R).
+
+flattend(L,R) :- flattendh(L,(R,[])).
+flattendh([],(R,R)).
+flattendh([H|T], ([H|R],S)) :- not(is_list(H)), flattendh(T,(R,S)).
+flattendh([H|T],(R,S)) :- is_list(H), flattendh(H,(R,N)), flattendh(T,(N,S)).
+
+Exercit¸iul 2
+Reamintim, tot din solut¸iile Laboratorului 3, definirea predicatului
+quicksort/2:
+
+quicksortd(L,R) :- quicksortdh(L,(R,[])).
+quicksortdh([],(R,R)).
+quicksortdh([H|T],(R,S)) :- split(H,T,A,B), quicksortdh(A,(R,[H|N])),
+                                            quicksortdh(B,(N,S)).

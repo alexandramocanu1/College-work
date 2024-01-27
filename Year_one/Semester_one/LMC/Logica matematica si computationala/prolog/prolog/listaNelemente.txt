@@ -1,0 +1,4 @@
+listaNelem(_,0,[]).
+listaNelem(L,N,[H|T]) :- N > 0, P is N - 1, member(H,L), listaNelem(L,P,T).
+
+%Prima e o lista,a2a e lungimea la lista a2a,daca tot ce e in a2a e in prima e ok

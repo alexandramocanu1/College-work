@@ -1,0 +1,2 @@
+duplicate([],[]).
+duplicate([X|T],[X,X|A]):-duplicate(T,A).

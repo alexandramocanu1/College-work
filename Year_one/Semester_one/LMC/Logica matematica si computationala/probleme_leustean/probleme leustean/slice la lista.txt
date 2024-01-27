@@ -1,0 +1,5 @@
+slice(List,Start,End,Slice):-
+    findall(X,(between(Start,End,I),nth0(I,List,X)),Slice).
+
+
+#INDEXARE DE LA 0.
