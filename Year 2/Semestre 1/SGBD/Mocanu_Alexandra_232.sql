@@ -490,10 +490,6 @@ CREATE OR REPLACE PROCEDURE actualizare_hrana(
     TYPE Hrane_Imbricate IS TABLE OF VARCHAR2(255);
     hrane_animal Hrane_Imbricate := Hrane_Imbricate();
 
-    -- Vector
-    TYPE Vector_Hrane IS VARRAY(10) OF VARCHAR2(255);
-    vector_hrane Vector_Hrane := Vector_Hrane();
-
 BEGIN
     -- Adăugarea hranei disponibile în tabelul indexat
     hrane_disponibile(1) := 'Hrana uscata pentru caini Pedigree Adult';
@@ -517,9 +513,41 @@ EXCEPTION
         DBMS_OUTPUT.PUT_LINE('A aparut o eroare: ' || SQLERRM);
 END;
 /
+
 --Tabel Indexat (Hrane_Indexate)
 --Tabel Imbricat (Hrane_Imbricate)
 --Vector (Vector_Hrane)
+
+
+-- apelare
+
+DECLARE
+    v_id_animal NUMBER := 1;
+    v_nume_hrana VARCHAR2(255) := 'Hrana uscata pentru caini Pedigree Adult'; 
+    v_cantitate_aditionala NUMBER := 2; 
+BEGIN
+    actualizare_hrana(
+        p_id_animal => v_id_animal,
+        p_nume_hrana => v_nume_hrana,
+        p_cantitate_aditionala => v_cantitate_aditionala
+    );
+END;
+/
+
+DECLARE
+    v_id_animal NUMBER := 123456787654; 
+    v_nume_hrana VARCHAR2(255) := 'Hrana uscata pentru caini Pedigree Adult';
+    v_cantitate_aditionala NUMBER := 2; 
+BEGIN
+    actualizare_hrana(
+        p_id_animal => v_id_animal,
+        p_nume_hrana => v_nume_hrana,
+        p_cantitate_aditionala => v_cantitate_aditionala
+    );
+END;
+/
+
+
     
 
 
