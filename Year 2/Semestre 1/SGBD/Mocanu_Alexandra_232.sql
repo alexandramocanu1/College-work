@@ -1118,5 +1118,3 @@ END ANIMAL_SHEET;
 
 -- ex 6 ad colectii: tablou imbricat, tablou indexat, vector
 -- ex 8 exceptii proprii
-
-
