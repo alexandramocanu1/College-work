@@ -421,7 +421,7 @@ BEGIN
     SET CANTITATE = CANTITATE + p_cantitate_aditionala
     WHERE ID_MAGAZIN = p_id_animal AND DENUMIRE_PRODUS = p_nume_hrana;
 
-    cantitate_actualizata := SQL%ROWCOUNT; -- Numarul de înregistrari actualizate
+    cantitate_actualizata := SQL%ROWCOUNT; 
 
     IF cantitate_actualizata > 0 THEN
         COMMIT;
@@ -469,6 +469,58 @@ BEGIN
     );
 END;
 /
+
+
+
+-- cerinta 6 modificata
+
+CREATE OR REPLACE PROCEDURE actualizare_hrana(
+    p_id_animal IN NUMBER,
+    p_nume_hrana IN VARCHAR2,
+    p_cantitate_aditionala IN NUMBER
+) AS
+    -- Variabile pentru a stoca cantitatea de hrana actualizata
+    cantitate_actualizata NUMBER;
+    
+    -- Tabel indexat
+    TYPE Hrane_Indexate IS TABLE OF VARCHAR2(255) INDEX BY PLS_INTEGER;
+    hrane_disponibile Hrane_Indexate;
+
+    -- Tabel imbricat
+    TYPE Hrane_Imbricate IS TABLE OF VARCHAR2(255);
+    hrane_animal Hrane_Imbricate := Hrane_Imbricate();
+
+    -- Vector
+    TYPE Vector_Hrane IS VARRAY(10) OF VARCHAR2(255);
+    vector_hrane Vector_Hrane := Vector_Hrane();
+
+BEGIN
+    -- Adăugarea hranei disponibile în tabelul indexat
+    hrane_disponibile(1) := 'Hrana uscata pentru caini Pedigree Adult';
+    hrane_disponibile(2) := 'Hrana umeda pentru pisici Whiskas';
+    
+    -- Actualizarea cantitatii de hrana
+    UPDATE HRANA
+    SET CANTITATE = CANTITATE + p_cantitate_aditionala
+    WHERE ID_MAGAZIN = p_id_animal AND DENUMIRE_PRODUS = p_nume_hrana;
+
+    cantitate_actualizata := SQL%ROWCOUNT; 
+
+    IF cantitate_actualizata > 0 THEN
+        COMMIT;
+        DBMS_OUTPUT.PUT_LINE('Cantitatea de hrana pentru animalul cu ID ' || p_id_animal || ' și ' || p_nume_hrana || ' a fost actualizata cu ' || p_cantitate_aditionala || ' unitați.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Nu s-au gasit date pentru ID-ul animalului ' || p_id_animal || ' și ' || p_nume_hrana);
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('A aparut o eroare: ' || SQLERRM);
+END;
+/
+--Tabel Indexat (Hrane_Indexate)
+--Tabel Imbricat (Hrane_Imbricate)
+--Vector (Vector_Hrane)
+    
 
 
 -- cerinta 7
@@ -593,6 +645,84 @@ EXCEPTION
 END;
 /
 
+
+-- cerinta 8 modificata
+
+CREATE TABLE ISTORIC_MEDICAMENTE (
+  ID_ANIMAL INT,
+  MEDICAMENT VARCHAR2(255)
+);
+
+
+CREATE OR REPLACE FUNCTION obt_medicament_animal(p_ID_Animal INT)
+RETURN VARCHAR2 IS
+  v_Medicament VARCHAR2(255);
+  v_Count NUMBER; 
+  MedicamentRecomandat EXCEPTION; 
+BEGIN
+  SELECT M.DENUMIRE_PRODUS
+  INTO v_Medicament
+  FROM MEDICAMENT M
+  JOIN CARTE_DE_SANATATE CS ON M.NUMAR = CS.ID_ANIMAL
+  WHERE CS.ID_ANIMAL = p_ID_Animal;
+
+  SELECT COUNT(*)
+  INTO v_Count
+  FROM ISTORIC_MEDICAMENTE
+  WHERE ID_ANIMAL = p_ID_Animal AND MEDICAMENT = v_Medicament;
+
+  IF v_Count > 0 THEN
+    RAISE MedicamentRecomandat;
+  END IF;
+
+  INSERT INTO ISTORIC_MEDICAMENTE (ID_ANIMAL, MEDICAMENT) VALUES (p_ID_Animal, v_Medicament);
+
+  RETURN v_Medicament;
+
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+    RETURN 'Animalul nu are informații în carnetul de sănătate.';
+  WHEN MedicamentRecomandat THEN
+    RETURN 'Animalului i-a fost deja recomandat acest medicament.';
+  WHEN OTHERS THEN
+    RETURN 'Eroare necunoscută: ' || SQLERRM;
+END obt_medicament_animal;
+/
+
+
+    -- Testăm funcția cu un ID animal valid
+BEGIN
+  DECLARE
+    v_ID_Animal INT := 1;
+    v_Resultat VARCHAR2(255);
+  BEGIN
+    v_Resultat := obt_medicament_animal(v_ID_Animal);
+    DBMS_OUTPUT.PUT_LINE('Medicament recomandat pentru animalul cu ID ' || v_ID_Animal || ': ' || v_Resultat);
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
+  END;
+END;
+/
+
+-- Testăm funcția cu un ID animal invalid
+BEGIN
+  DECLARE
+    v_ID_Animal INT := 15688324;
+    v_Resultat VARCHAR2(255);
+  BEGIN
+    v_Resultat := obt_medicament_animal(v_ID_Animal);
+    DBMS_OUTPUT.PUT_LINE('Medicament recomandat pentru animalul cu ID ' || v_ID_Animal || ': ' || v_Resultat);
+  EXCEPTION
+    WHEN OTHERS THEN
+      DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
+  END;
+END;
+/
+
+
+
+    
 
 -- cerinta 9
 
@@ -956,3 +1086,9 @@ CREATE OR REPLACE PACKAGE BODY ANIMAL_SHEET AS
 
 END ANIMAL_SHEET;
 /
+
+
+-- ex 6 ad colectii: tablou imbricat, tablou indexat, vector
+-- ex 8 exceptii proprii
+
+
