@@ -676,17 +676,12 @@ END;
 
 -- cerinta 8 modificata
 
-CREATE TABLE ISTORIC_MEDICAMENTE (
-  ID_ANIMAL INT,
-  MEDICAMENT VARCHAR2(255)
-);
-
-
 CREATE OR REPLACE FUNCTION obt_medicament_animal(p_ID_Animal INT)
 RETURN VARCHAR2 IS
   v_Medicament VARCHAR2(255);
   v_Count NUMBER; 
   MedicamentRecomandat EXCEPTION; 
+  MedicamentIndisponibil EXCEPTION;
 BEGIN
   SELECT M.DENUMIRE_PRODUS
   INTO v_Medicament
@@ -703,6 +698,11 @@ BEGIN
     RAISE MedicamentRecomandat;
   END IF;
 
+  -- Verificam daca medicamentul este disponibil
+  IF v_Medicament IS NULL THEN
+    RAISE MedicamentIndisponibil;
+  END IF;
+
   INSERT INTO ISTORIC_MEDICAMENTE (ID_ANIMAL, MEDICAMENT) VALUES (p_ID_Animal, v_Medicament);
 
   RETURN v_Medicament;
@@ -712,42 +712,51 @@ EXCEPTION
     RETURN 'Animalul nu are informații în carnetul de sănătate.';
   WHEN MedicamentRecomandat THEN
     RETURN 'Animalului i-a fost deja recomandat acest medicament.';
+  WHEN MedicamentIndisponibil THEN -- Tratăm noua excepție
+    RETURN 'Medicamentul nu este disponibil în baza de date.';
   WHEN OTHERS THEN
     RETURN 'Eroare necunoscută: ' || SQLERRM;
 END obt_medicament_animal;
 /
 
-
-    -- Testăm funcția cu un ID animal valid
+-- MedicamentRecomandat
+DECLARE
+  v_ID_Animal INT := 1;
+  v_Resultat VARCHAR2(255);
 BEGIN
-  DECLARE
-    v_ID_Animal INT := 1;
-    v_Resultat VARCHAR2(255);
-  BEGIN
-    v_Resultat := obt_medicament_animal(v_ID_Animal);
-    DBMS_OUTPUT.PUT_LINE('Medicament recomandat pentru animalul cu ID ' || v_ID_Animal || ': ' || v_Resultat);
-  EXCEPTION
-    WHEN OTHERS THEN
-      DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
-  END;
+  v_Resultat := obt_medicament_animal(v_ID_Animal);
+  DBMS_OUTPUT.PUT_LINE('Medicament recomandat pentru animalul cu ID ' || v_ID_Animal || ': ' || v_Resultat);
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
 END;
 /
 
--- Testăm funcția cu un ID animal invalid
+-- animalul nu are informatii in caremtul de sanatate
+DECLARE
+  v_ID_Animal INT := 11; 
+  v_Resultat VARCHAR2(255);
 BEGIN
-  DECLARE
-    v_ID_Animal INT := 15688324;
-    v_Resultat VARCHAR2(255);
-  BEGIN
-    v_Resultat := obt_medicament_animal(v_ID_Animal);
-    DBMS_OUTPUT.PUT_LINE('Medicament recomandat pentru animalul cu ID ' || v_ID_Animal || ': ' || v_Resultat);
-  EXCEPTION
-    WHEN OTHERS THEN
-      DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
-  END;
+  v_Resultat := obt_medicament_animal(v_ID_Animal);
+  DBMS_OUTPUT.PUT_LINE('Medicament recomandat pentru animalul cu ID ' || v_ID_Animal || ': ' || v_Resultat);
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
 END;
 /
 
+-- fara erori
+DECLARE
+  v_ID_Animal INT := 6; 
+  v_Resultat VARCHAR2(255);
+BEGIN
+  v_Resultat := obt_medicament_animal(v_ID_Animal);
+  DBMS_OUTPUT.PUT_LINE('Medicament recomandat pentru animalul cu ID ' || v_ID_Animal || ': ' || v_Resultat);
+EXCEPTION
+  WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
+END;
+/
 
 
     
