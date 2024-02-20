@@ -519,6 +519,54 @@ END;
 --Vector (Vector_Hrane)
 
 
+-- cerinta 6 cu toate colectiile de date
+
+CREATE OR REPLACE PROCEDURE actualizare_hrana(
+    p_id_animal IN NUMBER,
+    p_nume_hrana IN VARCHAR2,
+    p_cantitate_aditionala IN NUMBER
+) AS
+    -- Variabile pentru a stoca cantitatea de hrana actualizata
+    cantitate_actualizata NUMBER;
+    
+    -- Tabel indexat
+    TYPE Hrane_Indexate IS TABLE OF VARCHAR2(255) INDEX BY PLS_INTEGER;
+    hrane_disponibile Hrane_Indexate;
+
+    -- Tabel imbricat
+    TYPE Hrane_Imbricate IS TABLE OF VARCHAR2(255);
+    hrane_animal Hrane_Imbricate := Hrane_Imbricate();
+
+    -- Vector (VARRAY)
+    TYPE Vector_Hrane IS VARRAY(10) OF VARCHAR2(255);
+    hrane_vector Vector_Hrane := Vector_Hrane();
+
+BEGIN
+    -- Adaugarea hranei disponibile in tabelul indexat
+    hrane_disponibile(1) := 'Hrana uscata pentru caini Pedigree Adult';
+    hrane_disponibile(2) := 'Hrana umeda pentru pisici Whiskas';
+    
+    -- Actualizarea cantitatii de hrana
+    UPDATE HRANA
+    SET CANTITATE = CANTITATE + p_cantitate_aditionala
+    WHERE ID_MAGAZIN = p_id_animal AND DENUMIRE_PRODUS = p_nume_hrana;
+
+    cantitate_actualizata := SQL%ROWCOUNT; 
+
+    IF cantitate_actualizata > 0 THEN
+        COMMIT;
+        DBMS_OUTPUT.PUT_LINE('Cantitatea de hrana pentru animalul cu ID ' || p_id_animal || ' și ' || p_nume_hrana || ' a fost actualizata cu ' || p_cantitate_aditionala || ' unitati.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Nu s-au gasit date pentru ID-ul animalului ' || p_id_animal || ' și ' || p_nume_hrana);
+    END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('A aparut o eroare: ' || SQLERRM);
+END;
+/
+
+
+
 -- apelare
 
 DECLARE
