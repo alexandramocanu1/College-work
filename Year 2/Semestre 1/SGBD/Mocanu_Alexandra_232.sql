@@ -670,6 +670,61 @@ BEGIN
 END;
 /
 
+-- cerinta 7 modificata
+
+CREATE OR REPLACE PROCEDURE afisare_animale_adoptate(
+    dataAdoptie IN DATE
+) AS
+    -- cursor explicit pentru animale adoptate
+    CURSOR curAnimaleAdoptate IS
+        SELECT ca.SERIE, a.NUME, a.RASA, a.VARSTA, a.SEX, a.DATA_SOSIRE, v.NUME || ' ' || v.PRENUME AS NUME_VETERINAR, a.ID_ANIMAL
+        FROM CERERE_ADOPTIE ca
+        JOIN ANIMAL a ON ca.ID_ANIMAL = a.ID_ANIMAL
+        JOIN VETERINAR v ON a.ID_VETERINAR = v.CNP
+        WHERE ca.DATA = dataAdoptie;
+
+    -- cursor implicit pentru informatii suplimentare despre animale
+    v_ID_ANIMAL INT;
+    v_au_fost_adoptate BOOLEAN := FALSE;
+
+BEGIN
+    -- Parcurgem animalele adoptate
+    FOR animalAdoptat IN curAnimaleAdoptate LOOP
+        -- Salvam ID_ANIMAL in variabila
+        v_ID_ANIMAL := animalAdoptat.ID_ANIMAL;
+        v_au_fost_adoptate := TRUE;
+
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+        DBMS_OUTPUT.PUT_LINE('Serie: ' || animalAdoptat.SERIE);
+        DBMS_OUTPUT.PUT_LINE('Nume: ' || animalAdoptat.NUME);
+        DBMS_OUTPUT.PUT_LINE('Rasa: ' || animalAdoptat.RASA);
+        DBMS_OUTPUT.PUT_LINE('Varsta: ' || animalAdoptat.VARSTA);
+        DBMS_OUTPUT.PUT_LINE('Sex: ' || animalAdoptat.SEX);
+        DBMS_OUTPUT.PUT_LINE('Data sosire: ' || TO_CHAR(animalAdoptat.DATA_SOSIRE, 'YYYY-MM-DD'));
+        DBMS_OUTPUT.PUT_LINE('Veterinar: ' || animalAdoptat.NUME_VETERINAR);
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+
+        -- Obtinem informatii suplimentare folosind cursorul implicit
+        FOR infoSuplimentare IN (
+            SELECT cs.VACCINURI, cs.DATA_NASTERE, cs.ANTECEDENTE_MEDICALE
+            FROM CARTE_DE_SANATATE cs
+            WHERE cs.ID_ANIMAL = v_ID_ANIMAL
+        ) LOOP
+            DBMS_OUTPUT.PUT_LINE('Vaccinuri: ' || infoSuplimentare.VACCINURI);
+            DBMS_OUTPUT.PUT_LINE('Data nasterii: ' || TO_CHAR(infoSuplimentare.DATA_NASTERE, 'YYYY-MM-DD'));
+            DBMS_OUTPUT.PUT_LINE('Antecedente medicale: ' || infoSuplimentare.ANTECEDENTE_MEDICALE);
+        END LOOP;
+
+        DBMS_OUTPUT.PUT_LINE('----------------------------------------');
+    END LOOP;
+
+    IF NOT v_au_fost_adoptate THEN
+        DBMS_OUTPUT.PUT_LINE('Nu au fost adoptate animale in data introdusa.');
+    END IF;
+END afisare_animale_adoptate;
+/
+
+
  
 -- cerinta 8
 
