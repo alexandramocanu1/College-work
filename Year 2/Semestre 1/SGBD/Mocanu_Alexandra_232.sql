@@ -519,6 +519,8 @@ END;
 --Vector (Vector_Hrane)
 
 
+
+    
 -- cerinta 6 cu toate colectiile de date
 
 CREATE OR REPLACE PROCEDURE actualizare_hrana(
@@ -675,7 +677,7 @@ END;
 CREATE OR REPLACE PROCEDURE afisare_animale_adoptate(
     dataAdoptie IN DATE
 ) AS
-    -- cursor explicit pentru animale adoptate
+    -- cursor explicit parametrizat pentru animale adoptate
     CURSOR curAnimaleAdoptate IS
         SELECT ca.SERIE, a.NUME, a.RASA, a.VARSTA, a.SEX, a.DATA_SOSIRE, v.NUME || ' ' || v.PRENUME AS NUME_VETERINAR, a.ID_ANIMAL
         FROM CERERE_ADOPTIE ca
@@ -779,6 +781,11 @@ END;
 
 -- cerinta 8 modificata
 
+CREATE TABLE ISTORIC_MEDICAMENTE (
+    ID_ANIMAL INT,
+    MEDICAMENT VARCHAR2(255)
+);
+    
 CREATE OR REPLACE FUNCTION obt_medicament_animal(p_ID_Animal INT)
 RETURN VARCHAR2 IS
   v_Medicament VARCHAR2(255);
@@ -850,7 +857,7 @@ END;
 
 -- fara erori
 DECLARE
-  v_ID_Animal INT := 6; 
+  v_ID_Animal INT := 2; 
   v_Resultat VARCHAR2(255);
 BEGIN
   v_Resultat := obt_medicament_animal(v_ID_Animal);
