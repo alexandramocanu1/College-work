@@ -1,0 +1,33 @@
+--tema 5
+-- ex 10
+-- Obtin numele și lista numelor angajaților pentru fiecare departament(sectie) 10, 20, 30 și 40
+DECLARE
+  CURSOR departamente_cur IS
+    SELECT DISTINCT ID_SECTIE
+    FROM SECTIE_SECTOR;
+  
+  v_nume_sectie SECTIE.NUME%TYPE;
+  v_nume_angajat ANGAJAT.NUME%TYPE;
+  
+BEGIN
+  FOR departament_rec IN departamente_cur
+  LOOP
+    SELECT NUME INTO v_nume_sectie
+    FROM SECTIE
+    WHERE ID_SECTIE = departament_rec.ID_SECTIE;
+    
+    DBMS_OUTPUT.PUT_LINE('Departamentul ' || v_nume_sectie || ':');
+    
+    FOR angajat_rec IN (SELECT A.NUME
+                        FROM ANGAJAT A
+                        JOIN SECTIE S ON A.ID_CONTRACT = S.ID_CUSCA
+                        WHERE S.ID_SECTIE = departament_rec.ID_SECTIE)
+    LOOP
+      v_nume_angajat := angajat_rec.NUME;
+      DBMS_OUTPUT.PUT_LINE('  - ' || v_nume_angajat);
+    END LOOP;
+    
+    DBMS_OUTPUT.PUT_LINE('');
+  END LOOP;
+END;
+/

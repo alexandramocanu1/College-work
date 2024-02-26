@@ -1,0 +1,31 @@
+CREATE OR REPLACE FUNCTION getSalaryByName(p_name IN VARCHAR2)
+RETURN NUMBER
+IS
+    v_salary NUMBER;
+BEGIN
+    SELECT SALARIU INTO v_salary
+    FROM ANGAJAT
+    WHERE UPPER(NUME) = UPPER(p_name);
+
+    RETURN v_salary;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Angajatul ' || p_name || ' nu a fost găsit.');
+        RETURN NULL;
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Eroare: ' || SQLERRM);
+        RETURN NULL;
+END getSalaryByName;
+/
+
+DECLARE
+    v_salary NUMBER;
+BEGIN
+    FOR emp_name IN ('Bell', 'King', 'Kimball') LOOP
+        v_salary := getSalaryByName(emp_name);
+        IF v_salary IS NOT NULL THEN
+            DBMS_OUTPUT.PUT_LINE('Salariul angajatului ' || emp_name || ' este: ' || v_salary);
+        END IF;
+    END LOOP;
+END;
+/

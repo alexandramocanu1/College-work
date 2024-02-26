@@ -1,0 +1,55 @@
+-- este posibil ca initial sa fi postat alta tema...
+-- tema 8
+
+CREATE TABLE info_dept (
+    id INT PRIMARY KEY,
+    nume_dept VARCHAR(255),
+    plati DECIMAL(10, 2)
+);
+
+INSERT INTO info_drept(id, nume_dept, plati)
+SELECT
+    s.ID_SECTIE,
+    s.NUME,
+    NVL(SUM(c.DURATA * a.SALARIU_ORAR), 0) AS plati
+FROM
+    ANGAJAT a
+JOIN
+    CONTRACT c ON a.ID_CONTRACT = c.NUMAR
+JOIN
+    DIRECTOR d ON a.ID_ANGAJAT = d.ID_ANGAJAT
+JOIN
+    SECTIE s ON d.ID_CONTRACT = s.ID_CUSCA
+GROUP BY
+    s.ID_SECTIE, s.NUME;
+
+
+
+CREATE OR REPLACE TRIGGER update_plati
+AFTER INSERT OR DELETE OR UPDATE OF SALARIU_ORAR ON ANGAJAT
+FOR EACH ROW
+BEGIN
+    IF INSERTING THEN
+
+    UPDATE info_drept
+        SET plati = plati + :new.SALARIU_ORAR * (SELECT DURATA FROM CONTRACT WHERE NUMAR = :new.ID_CONTRACT)
+        WHERE id = (SELECT ID_CUSCA FROM SECTIE WHERE ID_SECTIE = :new.ID_SECTIE);
+    ELSIF UPDATING THEN
+
+        UPDATE info_drept
+        SET plati = plati - :old.SALARIU_ORAR * (SELECT DURATA FROM CONTRACT WHERE NUMAR = :old.ID_CONTRACT)
+        WHERE id = (SELECT ID_CUSCA FROM SECTIE WHERE ID_SECTIE = :old.ID_SECTIE);
+
+        UPDATE info_drept
+        SET plati = plati + :new.SALARIU_ORAR * (SELECT DURATA FROM CONTRACT WHERE NUMAR = :new.ID_CONTRACT)
+        WHERE id = (SELECT ID_CUSCA FROM SECTIE WHERE ID_SECTIE = :new.ID_SECTIE);
+    ELSIF DELETING THEN
+
+        UPDATE info_drept
+        SET plati = plati - :old.SALARIU_ORAR * (SELECT DURATA FROM CONTRACT WHERE NUMAR = :old.ID_CONTRACT)
+        WHERE id = (SELECT ID_CUSCA FROM SECTIE WHERE ID_SECTIE = :old.ID_SECTIE);
+    END IF;
+END;
+/
+
+
