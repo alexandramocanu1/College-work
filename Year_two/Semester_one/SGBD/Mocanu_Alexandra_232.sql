@@ -1237,3 +1237,6 @@ END ANIMAL_SHEET;
 
 -- ex 6 ad colectii: tablou imbricat, tablou indexat, vector
 -- ex 8 exceptii proprii
+
+--ex 8...3 tabele in ac comanda
+--13 fara triggeri in pachet
