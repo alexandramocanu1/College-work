@@ -1240,3 +1240,4 @@ END ANIMAL_SHEET;
 
 --ex 8...3 tabele in ac comanda
 --13 fara triggeri in pachet
+--o sa intrebe din diagrama/colectii
