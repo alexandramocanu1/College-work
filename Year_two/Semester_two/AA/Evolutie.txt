@@ -1,0 +1,221 @@
+Populatia initiala
+1:  x= 1.0000 f=6.0000
+2:  x= 1.0000 f=6.0000
+3:  x= 1.0000 f=6.0000
+4:  x= 1.0000 f=6.0000
+5:  x= 1.0000 f=6.0000
+6:  x= 1.0000 f=6.0000
+7:  x= 1.0000 f=6.0000
+8:  x= 1.0000 f=6.0000
+9:  x= 1.0000 f=6.0000
+10:  x= 1.0000 f=6.0000
+11:  x= 1.0000 f=6.0000
+12:  x= 1.0000 f=6.0000
+13:  x= 1.0000 f=6.0000
+14:  x= 1.0000 f=6.0000
+15:  x= 1.0000 f=6.0000
+16:  x= 1.0000 f=6.0000
+17:  x= 1.0000 f=6.0000
+18:  x= 1.0000 f=6.0000
+19:  x= 1.0000 f=6.0000
+20:  x= 1.0000 f=6.0000
+
+Generatia 1:
+Cel mai bun individ: 111001001111101111001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 2:
+Cel mai bun individ: 111001001111101111001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 3:
+Cel mai bun individ: 111001001111101111001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 4:
+Cel mai bun individ: 111001001111101111001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 5:
+Cel mai bun individ: 111001001111101111001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 6:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 7:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 8:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 9:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 10:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 11:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 12:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 13:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 14:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 15:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 16:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 17:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 18:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 19:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 20:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 21:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 22:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 23:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 24:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 25:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 26:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 27:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 28:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 29:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 30:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 31:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 32:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 33:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 34:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 35:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 36:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 37:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 38:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 39:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 40:
+Cel mai bun individ: 111100011011000101001 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 41:
+Cel mai bun individ: 111110101011001011101 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 42:
+Cel mai bun individ: 111110101011001011101 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 43:
+Cel mai bun individ: 111110101011001011101 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 44:
+Cel mai bun individ: 111110101011001011101 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 45:
+Cel mai bun individ: 111110101011001011101 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 46:
+Cel mai bun individ: 111110101011001011101 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 47:
+Cel mai bun individ: 111110101011001011101 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 48:
+Cel mai bun individ: 111110101011001011101 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 49:
+Cel mai bun individ: 111110101011001011101 cu fitness: 6.0000
+Media fitness-ului: 6.0000
+
+Generatia 50:
+Cel mai bun individ: 111110101011001011101 cu fitness: 6.0000
+Media fitness-ului: 6.0000
