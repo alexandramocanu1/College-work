@@ -1,0 +1,1 @@
+This repository contains a compilation of all the projects completed during my time in university across various subjects. From software engineering to algorithms, it showcases my journey in applying theoretical knowledge to practical implementations.
