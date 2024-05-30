@@ -574,12 +574,12 @@ WHERE F.ID_FARMACIE IN (
 
 -- 13 b) Operații de suprimare (DELETE) utilizând subcereri
 -- 13.4 Ștergerea animalelor care nu au fost vizitate în ultimele 6 luni:
-DELETE FROM ANIMAL A
-WHERE A.ID_ANIMAL IN (
-    SELECT A1.ID_ANIMAL
-    FROM ANIMAL A1
-    LEFT JOIN CONSULTATIE C ON A1.ID_ANIMAL = C.ID_ANIMAL
-    WHERE C.ID_ANIMAL IS NULL OR C.DATA < ADD_MONTHS(SYSDATE, -6)
+DELETE FROM CONSULTATIE C
+WHERE C.ID_ANIMAL IN (
+    SELECT A.ID_ANIMAL
+    FROM ANIMAL A
+    LEFT JOIN CONSULTATIE C2 ON A.ID_ANIMAL = C2.ID_ANIMAL
+    WHERE C2.ID_ANIMAL IS NULL OR C2.DATA < ADD_MONTHS(SYSDATE, -6)
 );
 
 
@@ -657,9 +657,11 @@ WHERE NOT EXISTS (
         SELECT 1
         FROM SECTIE_SECTOR SS
         JOIN SECTIE SE ON SS.ID_SECTIE = SE.ID_SECTIE
-        WHERE SE.ID_CUSCA = A.ID_CUSCA AND SS.ID_SECTOR = S.ID_SECTOR
+        WHERE SE.ID_CUSCA = A.ID_CUSCA
+          AND SS.ID_SECTOR = S.ID_SECTOR
     )
 );
+
 
 
 -- Cerere care implementează analiza top-n
@@ -671,4 +673,91 @@ FROM (
 WHERE RANG <= 3;
 
 
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+-- 16. optimizare
+
+-- sql initial
+SELECT A.NUME, M.NUME 
+FROM ANGAJAT A
+JOIN CONTRACT C ON A.ID_CONTRACT = C.NUMAR
+JOIN MAGAZIN M ON C.id_magazin = M.ID_MAGAZIN
+WHERE A.NUME LIKE 'A%';
+
+-- Arbore initial
+-- π A.NUME, M.NUME
+--    |
+-- σ A.NUME LIKE 'A%' AND M.NUMAR_LOCURI > 10
+--    |
+-- ⋈ C.id_magazin = M.ID_MAGAZIN
+--    |
+-- ⋈ A.ID_CONTRACT = C.NUMAR
+--    |
+-- ANGAJAT      CONTRACT      MAGAZIN
+
+
+-- Regulile de optimizare:
+-- Regula 1: Realizarea selecțiilor cât mai jos posibil.
+-- Regula 3: Combinarea selecțiilor.
+-- Regula 5: Comutativitatea selecțiilor cu proiectiile.
+-- Regula 6: Folosirea indecsilor pentru îmbunătățirea performanței.
+
+
+-- Arbore optimizat
+-- π A.NUME, M.NUME
+--    |
+-- ⋈ C.id_magazin = M.ID_MAGAZIN
+--    |
+-- σ M.NUMAR_LOCURI > 10
+--    |
+-- π C.id_magazin
+--    |
+-- ⋈ A.ID_CONTRACT = C.NUMAR
+--    |
+-- σ A.NUME LIKE 'A%'
+--    |
+-- π A.ID_CONTRACT, A.NUME
+--    |
+-- ANGAJAT      CONTRACT      MAGAZIN
+
+
+-- Crearea de indecși pe coloanele relevante
+CREATE INDEX idx_angajat_nume ON ANGAJAT (NUME);
+CREATE INDEX idx_contract_numar ON CONTRACT (NUMAR);
+CREATE INDEX idx_contract_id_magazin ON CONTRACT (id_magazin);
+CREATE INDEX idx_magazin_id_magazin ON MAGAZIN (ID_MAGAZIN);
+
+SELECT A.NUME, M.NUME 
+FROM 
+  -- Subinterogare pentru a aplica filtrul pe numele angajaților cât mai jos în arborele de execuție
+  (SELECT ID_CONTRACT, NUME 
+   FROM ANGAJAT 
+   WHERE NUME LIKE 'A%') A
+JOIN 
+  -- Subinterogare pentru tabelul CONTRACT pentru a limita coloanele returnate
+  (SELECT NUMAR, id_magazin 
+   FROM CONTRACT) C ON A.ID_CONTRACT = C.NUMAR
+JOIN 
+  -- Subinterogare pentru tabelul MAGAZIN pentru a limita coloanele returnate
+  (SELECT ID_MAGAZIN, NUME 
+   FROM MAGAZIN) M ON C.id_magazin = M.ID_MAGAZIN;
+
+
+
+
+
+
+
+-- 17. 
+-- BCNF
+-- Toate tabelele sunt în forma normală Boyce-Codd deoarece fiecare atribut non-cheie depinde în mod funcțional doar de cheile candidat.
+
+-- FN4
+-- Verificarea FN4 necesită ca tabelele să nu aibă multivalori independente. Fiecare tabel trebuie să aibă atribute care nu se repetă în contexte diferite.
+
+-- FN5
+--  Tabelele nu au dependențe join redundante. FN5 necesită că fiecare dependență este specificată prin intermediul cheilor primare și cheilor externe. Toate relațiile în tabelele date respectă FN5.
 
