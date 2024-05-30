@@ -166,6 +166,12 @@ CREATE TABLE DIRECTOR (
     FOREIGN KEY (ID_ANGAJAT) REFERENCES ANGAJAT (ID_ANGAJAT)
 );
 
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 -- Tabela CUSCA --
 INSERT INTO CUSCA (ID_CUSCA, NUMAR_LOCURI)
 VALUES (1, 5);
@@ -249,6 +255,19 @@ INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM, NUMAR)
 VALUES (4, ' GROOM VET C&A SRL', '41654738', '8 AM - 8 PM', 1);
 INSERT INTO FARMACIE (ID_FARMACIE, NUME, TELEFON, PROGRAM, NUMAR)
 VALUES (5, 'PETMART ONLINE SRL', '32167601', '24/7', 1);
+
+-- Tabela MED --
+INSERT INTO MED (ID_FARMACIE, NUMAR) VALUES (1, 1);
+INSERT INTO MED (ID_FARMACIE, NUMAR) VALUES (1, 2);
+INSERT INTO MED (ID_FARMACIE, NUMAR) VALUES (1, 3);
+INSERT INTO MED (ID_FARMACIE, NUMAR) VALUES (2, 2);
+INSERT INTO MED (ID_FARMACIE, NUMAR) VALUES (2, 4);
+INSERT INTO MED (ID_FARMACIE, NUMAR) VALUES (3, 3);
+INSERT INTO MED (ID_FARMACIE, NUMAR) VALUES (3, 5);
+INSERT INTO MED (ID_FARMACIE, NUMAR) VALUES (4, 4);
+INSERT INTO MED (ID_FARMACIE, NUMAR) VALUES (4, 1);
+INSERT INTO MED (ID_FARMACIE, NUMAR) VALUES (5, 5);
+
 
 
 -- Tabela MAGAZIN --
@@ -408,90 +427,209 @@ INSERT INTO DIRECTOR (ID_DIRECTOR, ID_CONTRACT, ID_ANGAJAT)
 VALUES (1, 105, 5);
 
 
---CERINTA 12
--- Cereri SQL complexe
---1. Vom realiza o interogare care să afișeze numele și prenumele angajatului care ocupă
---funcția de director și să afișeze denumirea clinicii veterinare unde lucrează ca director.
-SELECT A.NUME, A.PRENUME, CV.DENUMIRE
-FROM ANGAJAT A
-JOIN DIRECTOR D ON A.ID_ANGAJAT = D.ID_ANGAJAT
-JOIN CLINICA_VETERINARA CV ON D.ID_CONTRACT = CV.ID_CLINICA;
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
---2. Vom realiza o interogare care să afișeze denumirea farmaciei,denumirea medicamentului,
---și cantitatea disponibilă pentru fiecare medicament din tabela MEDICAMENT.
-SELECT F.NUME AS "DENUMIRE FARMACIE", M.DENUMIRE_PRODUS AS "DENUMIRE MEDICAMENT", M.CANTITATE AS "CANTITATE DISPONIBILA"
-FROM FARMACIE F
-JOIN MEDICAMENT M ON F.NUMAR = M.NUMAR;
 
-
---3. Vom realiza o interogare care să afișeze numele și prenumele vizitatorilor care au depus cereri de adopție în ordine alfabetică.
-SELECT NUME, PRENUME
-FROM VIZITATOR
-WHERE CNP IN (SELECT ID_VIZITATOR FROM CERERE_ADOPTIE)
-ORDER BY NUME, PRENUME;
-
---4. Vom realiza o interogare care să afișeze numele și prenumele veterinarilor care au efectuat consultații la animale
---și să afișeze numărul total de consultații pentru fiecare veterinar.
-SELECT V.NUME, V.PRENUME, COUNT(*) AS "NUMAR CONSULTATII"
-FROM VETERINAR V
-JOIN CONSULTATIE C ON V.CNP = C.ID_VETERINAR
-GROUP BY V.NUME, V.PRENUME;
-
---5. Vom realiza o interogare care să afișeze numărul total de animale din fiecare secție 
---și să ordoneze rezultatele descrescător după numărul de animale.
-SELECT S.NUME AS "NUME SECTIE", COUNT(A.ID_ANIMAL) AS "NUMAR ANIMALE"
-FROM SECTIE S
-LEFT JOIN ANIMAL A ON S.ID_CUSCA = A.ID_CUSCA
-GROUP BY S.NUME
-ORDER BY "NUMAR ANIMALE" DESC;
-
-
--- Cerinta 13
--- Implementarea a 3 operatii de actualizare si de suprimare a datelor utilizând subcereri.
---1. Actualizarea denumirii unui medicament în toate farmaciile:
-UPDATE MEDICAMENT
-SET DENUMIRE_PRODUS = 'Nume_Nou_Medicament'
-WHERE NUMAR = (
-    SELECT NUMAR
-    FROM MEDICAMENT
-    WHERE DENUMIRE_PRODUS = 'Nume_Vechi_Medicament'
+-- 12. 
+-- a) Subcereri sincronizate în care intervin cel puțin 3 tabele
+SELECT A.ID_ANIMAL, A.NUME, V.NUME AS NUME_VETERINAR, C.VACCINURI
+FROM ANIMAL A
+JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP
+JOIN CARTE_DE_SANATATE C ON A.ID_ANIMAL = C.ID_ANIMAL
+WHERE EXISTS (
+    SELECT 1
+    FROM CARTE_DE_SANATATE C2
+    WHERE C2.ID_ANIMAL = A.ID_ANIMAL AND C2.VACCINURI LIKE '%Rabie%'
 );
 
---2. Ștergerea tuturor animalelor dintr-o secție specifică:
-INSERT INTO CERERE_ADOPTIE (SERIE, ID_ANIMAL, ID_VIZITATOR, DATA)
-VALUES ('Seria_Cerere', 
-        (SELECT ID_ANIMAL FROM ANIMAL WHERE NUME = 'Nume_Animal'), 
-        (SELECT CNP FROM VIZITATOR WHERE NUME = 'Nume_Vizitator'),
-        'Data_Cerere');
+-- b) Subcereri nesincronizate în clauza FROM
+SELECT X."DENUMIRE FARMACIE", X."DENUMIRE MEDICAMENT", X."CANTITATE DISPONIBILA"
+FROM (
+    SELECT F.NUME AS "DENUMIRE FARMACIE", M.DENUMIRE_PRODUS AS "DENUMIRE MEDICAMENT", M.CANTITATE AS "CANTITATE DISPONIBILA"
+    FROM FARMACIE F
+    JOIN MEDICAMENT M ON F.NUMAR = M.NUMAR
+) X;
 
--- Ștergerea tuturor animalelor dintr-o secție specifică:
-DELETE FROM ANIMAL
+-- c) Grupări de date, funcții grup, filtrare la nivel de grupuri cu subcereri 
+SELECT S.TIP_NEVOIE, COUNT(A.ID_ANIMAL) AS NUMAR_ANIMALE
+FROM SECTOR S
+JOIN SECTIE_SECTOR SS ON S.ID_SECTOR = SS.ID_SECTOR
+JOIN SECTIE SE ON SS.ID_SECTIE = SE.ID_SECTIE
+JOIN ANIMAL A ON SE.ID_CUSCA = A.ID_CUSCA
+GROUP BY S.TIP_NEVOIE
+HAVING COUNT(A.ID_ANIMAL) > (
+    SELECT AVG(COUNT(A2.ID_ANIMAL))
+    FROM SECTOR S2
+    JOIN SECTIE_SECTOR SS2 ON S2.ID_SECTOR = SS2.ID_SECTOR
+    JOIN SECTIE SE2 ON SS2.ID_SECTIE = SE2.ID_SECTIE
+    JOIN ANIMAL A2 ON SE2.ID_CUSCA = A2.ID_CUSCA
+    GROUP BY S2.TIP_NEVOIE
+);
+
+-- d) Ordonări și utilizarea funcțiilor NVL și DECODE
+ALTER TABLE CERERE_ADOPTIE ADD TIP_CERERE VARCHAR(255);
+
+-- Interogarea:
+SELECT V.NUME, V.PRENUME, NVL(CA.NUMAR_CERERI, 0) AS NUMAR_CERERI,
+    DECODE(CA.TIP_CERERE, 'Urgent', CA.NUMAR_CERERI * 1.2, CA.NUMAR_CERERI) AS AJUSTARE_CERERI
+FROM VIZITATOR V
+LEFT JOIN (
+    SELECT ID_VIZITATOR, COUNT(*) AS NUMAR_CERERI, MAX(TIP_CERERE) AS TIP_CERERE
+    FROM CERERE_ADOPTIE
+    GROUP BY ID_VIZITATOR
+) CA ON V.CNP = CA.ID_VIZITATOR
+ORDER BY V.NUME, V.PRENUME;
+
+
+-- e) Utilizarea funcțiilor pe șiruri de caractere, funcții pe date calendaristice și expresii CASE
+ALTER TABLE VETERINAR ADD SPECIALITATE VARCHAR(255);
+
+-- Interogarea:
+SELECT A.NUME,
+    TRUNC(MONTHS_BETWEEN(SYSDATE, A.DATA_SOSIRE) / 12) AS ANI,
+    MOD(TRUNC(MONTHS_BETWEEN(SYSDATE, A.DATA_SOSIRE)), 12) AS LUNI,
+    INITCAP(A.NUME) AS NUME_COMPLET,
+    REPLACE(C.VACCINURI, 'Rabie', 'Antirabic') AS TIP_VACCIN,
+    CASE 
+        WHEN V.SPECIALITATE = 'Chirurgie' THEN 'Chirurg'
+        ELSE 'Generalist'
+    END AS TIP_VETERINAR
+FROM ANIMAL A
+JOIN CARTE_DE_SANATATE C ON A.ID_ANIMAL = C.ID_ANIMAL
+JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP;
+
+-- Funcții pe șiruri de caractere:
+
+-- INITCAP(A.NUME) AS NUME_COMPLET - Transformă primul caracter al fiecărui cuvânt în majusculă și restul în minuscule.
+-- REPLACE(C.VACCINURI, 'Rabie', 'Antirabic') AS TIP_VACCIN - Înlocuiește toate aparițiile șirului 'Rabie' cu 'Antirabic'.
+-- Funcții pe date calendaristice:
+
+-- TRUNC(MONTHS_BETWEEN(SYSDATE, A.DATA_SOSIRE) / 12) AS ANI - Calculează numărul de ani între data curentă și DATA_SOSIRE a animalului.
+-- MOD(TRUNC(MONTHS_BETWEEN(SYSDATE, A.DATA_SOSIRE)), 12) AS LUNI - Calculează numărul de luni (restul) din numărul total de luni dintre data curentă și DATA_SOSIRE.
+-- Expresii CASE:
+
+-- CASE WHEN V.SPECIALITATE = 'Chirurgie' THEN 'Chirurg' ELSE 'Generalist' END AS TIP_VETERINAR - Returnează 'Chirurg' dacă SPECIALITATE este 'Chirurgie', altfel returnează 'Generalist'.
+
+
+
+
+-- f) Utilizarea clauzei WITH
+--ALTER TABLE SECTIE ADD NUME_SECTIE VARCHAR(255);
+
+-- Interogarea:
+WITH ANIMALE_PE_SECTIE AS (
+    SELECT SE.ID_SECTIE, COUNT(A.ID_ANIMAL) AS NUMAR_ANIMALE
+    FROM SECTIE SE
+    JOIN ANIMAL A ON SE.ID_CUSCA = A.ID_CUSCA
+    GROUP BY SE.ID_SECTIE
+)
+SELECT SE.NUME AS NUME_SECTIE, AP.NUMAR_ANIMALE
+FROM SECTIE SE
+JOIN ANIMALE_PE_SECTIE AP ON SE.ID_SECTIE = AP.ID_SECTIE;
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-- 13 a) Operații de actualizare (UPDATE) utilizând subcereri
+
+-- 13.1 Actualizarea numărului de locuri din cuști în funcție de numărul de animale alocate:
+UPDATE CUSCA
+SET NUMAR_LOCURI = NUMAR_LOCURI - (
+    SELECT COUNT(*)
+    FROM ANIMAL A
+    WHERE A.ID_CUSCA = CUSCA.ID_CUSCA
+)
 WHERE ID_CUSCA IN (
     SELECT ID_CUSCA
-    FROM SECTIE
-    WHERE NUME = 'Nume_Sectie'
+    FROM ANIMAL
+);
+
+-- 13.2 Actualizarea denumirii produselor în magazin bazată pe contractul asociat:
+UPDATE MAGAZIN
+SET NUME = (
+    SELECT TIP
+    FROM CONTRACT C
+    WHERE C.ID_MAGAZIN = MAGAZIN.ID_MAGAZIN
+)
+WHERE ID_MAGAZIN IN (
+    SELECT ID_MAGAZIN
+    FROM CONTRACT
+);
+
+-- 13.3 Actualizarea numărului de medicamente disponibile în farmacie în funcție de stocul curent:
+UPDATE FARMACIE F
+SET NUMAR = (
+    SELECT COUNT(*)
+    FROM MED M
+    WHERE M.ID_FARMACIE = F.ID_FARMACIE
+)
+WHERE F.ID_FARMACIE IN (
+    SELECT DISTINCT ID_FARMACIE
+    FROM MED
 );
 
 
---Ștergerea tuturor vizitatorilor care au depus cereri de adopție înainte de o anumită dată:
+-- 13 b) Operații de suprimare (DELETE) utilizând subcereri
+-- 13.4 Ștergerea animalelor care nu au fost vizitate în ultimele 6 luni:
+DELETE FROM ANIMAL A
+WHERE A.ID_ANIMAL IN (
+    SELECT A1.ID_ANIMAL
+    FROM ANIMAL A1
+    LEFT JOIN CONSULTATIE C ON A1.ID_ANIMAL = C.ID_ANIMAL
+    WHERE C.ID_ANIMAL IS NULL OR C.DATA < ADD_MONTHS(SYSDATE, -6)
+);
+
+
+-- 13.5 Ștergerea vizitatorilor care nu au cereri de adopție asociate:
 DELETE FROM VIZITATOR
-WHERE CNP IN (
-    SELECT ID_VIZITATOR
+WHERE CNP NOT IN (
+    SELECT DISTINCT ID_VIZITATOR
     FROM CERERE_ADOPTIE
-    WHERE DATA < TO_DATE('2023-01-01', 'YYYY-MM-DD')
+);
+
+-- 13.6 Ștergerea magazinelor fără produse asociate:
+DELETE FROM MAGAZIN
+WHERE ID_MAGAZIN NOT IN (
+    SELECT DISTINCT ID_MAGAZIN
+    FROM HRANA
 );
 
 
---3. Adăugarea unui nou vizitator care a depus o cerere de adopție în tabelul CERERE_ADOPTIE:
-INSERT INTO CERERE_ADOPTIE (SERIE, ID_ANIMAL, ID_VIZITATOR, DATA)
-VALUES ('Seria_Cerere', 
-        (SELECT ID_ANIMAL FROM ANIMAL WHERE NUME = 'Nume_Animal'), 
-        (SELECT CNP FROM VIZITATOR WHERE NUME = 'Nume_Vizitator'),
-        'Data_Cerere');
 
 
---14. Operația outerjoin pe minimum 4 tabele
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+-- 14) 
+-- cele 3 tabele: ANIMAL, VETERINAR, si SECTIE.
+CREATE VIEW VIZUALIZARE_ANIMALE AS
+SELECT A.ID_ANIMAL, A.NUME, A.RASA, A.VARSTA, V.NUME AS NUME_VETERINAR, S.NUME AS NUME_SECTIE
+FROM ANIMAL A
+JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP
+JOIN SECTIE S ON A.ID_CUSCA = S.ID_CUSCA;
+
+-- Operație LMD permisă
+SELECT * FROM VIZUALIZARE_ANIMALE;
+
+-- Operație LMD nepermisă
+INSERT INTO VIZUALIZARE_ANIMALE (ID_ANIMAL, NUME, RASA, VARSTA, NUME_VETERINAR, NUME_SECTIE)
+VALUES (6, 'Bella', 'Poodle', 2, 'Elena Popa', 'Sectia 1');
+-- Operația de inserare (INSERT) nu este permisă deoarece vizualizarea combină date din mai multe tabele,
+-- iar inserarea directă ar necesita actualizări coerente în toate tabelele implicate,
+-- ceea ce nu poate fi realizat printr-o singură operație de inserare în vizualizare.
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+--15. 
+-- Operația outerjoin pe minimum 4 tabele
 SELECT *
 FROM ANIMAL A
 LEFT JOIN CUSCA C ON A.ID_CUSCA = C.ID_CUSCA
@@ -499,68 +637,38 @@ LEFT JOIN SECTIE S ON A.ID_CUSCA = S.ID_CUSCA
 LEFT JOIN SECTIE_SECTOR SS ON S.ID_SECTIE = SS.ID_SECTIE
 LEFT JOIN SECTOR SE ON SS.ID_SECTOR = SE.ID_SECTOR;
 
+-- 15. Operația outerjoin pe minimum 4 tabele
+SELECT A.ID_ANIMAL, A.NUME, S.NUME AS NUME_SECTIE, SECTOR.TIP_NEVOIE, C.VACCINURI
+FROM ANIMAL A
+LEFT JOIN SECTIE S ON A.ID_CUSCA = S.ID_CUSCA
+LEFT JOIN SECTIE_SECTOR SS ON S.ID_SECTIE = SS.ID_SECTIE
+LEFT JOIN SECTOR SECTOR ON SS.ID_SECTOR = SECTOR.ID_SECTOR
+LEFT JOIN CARTE_DE_SANATATE C ON A.ID_ANIMAL = C.ID_ANIMAL;
 
---Cerere care utilizează operația division
---Să presupunem că dorim să găsim animalele care au fost consultate de toți veterinarilor existenți. Vom folosi divizarea pentru a realiza acest lucru:
-SELECT A.ID_ANIMAL, A.NUME
+
+-- Vrem să identificăm acele animale care se află în fiecare secție existentă.
+-- Cerere ce utilizează operația division
+SELECT A.NUME
 FROM ANIMAL A
 WHERE NOT EXISTS (
-    SELECT C.CNP -- Fix the alias here to match the table VETERINAR's primary key column
-    FROM VETERINAR C
+    SELECT S.ID_SECTOR
+    FROM SECTOR S
     WHERE NOT EXISTS (
-        SELECT *
-        FROM CONSULTATIE CONS
-        WHERE CONS.ID_VETERINAR = C.CNP -- Fix the alias here to match the table VETERINAR's primary key column
-          AND CONS.ID_ANIMAL = A.ID_ANIMAL
+        SELECT 1
+        FROM SECTIE_SECTOR SS
+        JOIN SECTIE SE ON SS.ID_SECTIE = SE.ID_SECTIE
+        WHERE SE.ID_CUSCA = A.ID_CUSCA AND SS.ID_SECTOR = S.ID_SECTOR
     )
 );
 
---Cerere care implementează analiza top-n
--- dorim să găsim 3 cele mai frecvente medicamente vândute în farmacii:
-SELECT M.DENUMIRE_PRODUS, COUNT(*) AS NUMAR_VANZARI
-FROM MEDICAMENT M
-JOIN MED ME ON M.NUMAR = ME.NUMAR
-GROUP BY M.DENUMIRE_PRODUS
-ORDER BY NUMAR_VANZARI DESC
-FETCH FIRST 3 ROWS ONLY;
 
-
--- 16
---Expresia algebrică optimizată
-RESULT <- π NUME, PRENUME, NUME_CLINICA
-          (σ TIP = 'Servicii Veterinare' AND NUMAR = ID_CONTRACT AND ID_ANGAJAT = ID_DIRECTOR (CONTRACT ⨝ DIRECTOR ⨝ ANGAJAT))
-                    (ANGAJAT ⨝ CLINICA_VETERINARA)
-
---Arborele algebric optimizat
-              π NUME, PRENUME, NUME_CLINICA
-                 |
-              σ TIP = 'Servicii Veterinare' AND NUMAR = ID_CONTRACT AND ID_ANGAJAT = ID_DIRECTOR
-                 |
-           ⋈ CONTRACT (ID_CONTRACT) = NUMAR ⋈ DIRECTOR (ID_ANGAJAT = ID_DIRECTOR) ⋈ ANGAJAT
-                 |
-              ⋈
-                 |
-          CLINICA_VETERINARA
+-- Cerere care implementează analiza top-n
+SELECT *
+FROM (
+    SELECT A.NUME, A.RASA, A.VARSTA, RANK() OVER (ORDER BY A.VARSTA DESC) AS RANG
+    FROM ANIMAL A
+)
+WHERE RANG <= 3;
 
 
 
---Optimizarea unei cereri
-SELECT A.NUME, A.PRENUME, CV.DENUMIRE AS NUME_CLINICA
-FROM ANGAJAT A
-JOIN DIRECTOR D ON A.ID_ANGAJAT = D.ID_ANGAJAT
-JOIN CONTRACT C ON D.ID_CONTRACT = C.NUMAR AND C.TIP = 'Servicii Veterinare'
-JOIN CLINICA_VETERINARA CV ON C.ID_CLINICA = CV.ID_CLINICA;
-
-
-
--- Cererea 17a: Realizarea normalizarii BCNF, FN4, FN5
-
--- Cererea 17b: Aplicarea denormalizarii, justificând necesitatea acesteia
--- Exemplu de denormalizare prin ad?ugarea unei coloane redundante în tabelul ANIMAL
-ALTER TABLE ANIMAL ADD COLUMN NUME_VETERINAR VARCHAR(255);
-UPDATE ANIMAL a
-SET NUME_VETERINAR = (
-    SELECT v.NUME
-    FROM VETERINAR v
-    WHERE v.CNP = a.ID_VETERINAR
-);
