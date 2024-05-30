@@ -754,6 +754,27 @@ JOIN
 -- 17. 
 -- BCNF
 -- Toate tabelele sunt în forma normală Boyce-Codd deoarece fiecare atribut non-cheie depinde în mod funcțional doar de cheile candidat.
+-- Verificăm tabela CONTRACT pentru BCNF.
+-- Observăm că "DATA_EMITERE" determină "DURATA" și "TIP".
+-- Creăm tabela CONTRACT pentru a respecta BCNF.
+CREATE TABLE CONTRACT (
+    NUMAR INT PRIMARY KEY,
+    DATA_EMITERE DATE,
+    DURATA INT,
+    TIP VARCHAR(255),
+    ID_MAGAZIN INT,
+    ID_FARMACIE INT,
+    ID_CLINICA INT,
+    FOREIGN KEY (ID_MAGAZIN) REFERENCES MAGAZIN (ID_MAGAZIN),
+    FOREIGN KEY (ID_FARMACIE) REFERENCES FARMACIE (ID_FARMACIE),
+    FOREIGN KEY (ID_CLINICA) REFERENCES CLINICA_VETERINARA (ID_CLINICA)
+);
+
+-- Eliminăm dependențele funcționale netriviale din tabela CONTRACT.
+ALTER TABLE CONTRACT
+DROP COLUMN DURATA,
+DROP COLUMN TIP;
+
 
 -- FN4
 -- Verificarea FN4 necesită ca tabelele să nu aibă multivalori independente. Fiecare tabel trebuie să aibă atribute care nu se repetă în contexte diferite.
