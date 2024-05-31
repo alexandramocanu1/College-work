@@ -530,6 +530,28 @@ FROM SECTIE SE
 JOIN ANIMALE_PE_SECTIE AP ON SE.ID_SECTIE = AP.ID_SECTIE;
 
 
+
+
+
+
+
+-- am combinat b) si f) subcereri nesincronizate în clauza FROM si utilizarea a cel puțin 1 bloc de cerere (clauza WITH)
+WITH ANIMALE_PE_SECTIE AS (
+    SELECT SE.ID_SECTIE, COUNT(A.ID_ANIMAL) AS NUMAR_ANIMALE
+    FROM SECTIE SE
+    JOIN ANIMAL A ON SE.ID_CUSCA = A.ID_CUSCA
+    GROUP BY SE.ID_SECTIE
+)
+SELECT 
+    SECTIE_INFO.NUME AS NUME_SECTIE, 
+    ANIMALE_INFO.NUMAR_ANIMALE
+FROM 
+    (SELECT SE.ID_SECTIE, SE.NUME FROM SECTIE SE) SECTIE_INFO
+JOIN 
+    (SELECT AP.ID_SECTIE, AP.NUMAR_ANIMALE FROM ANIMALE_PE_SECTIE AP) ANIMALE_INFO
+ON 
+    SECTIE_INFO.ID_SECTIE = ANIMALE_INFO.ID_SECTIE;
+
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -781,4 +803,3 @@ DROP COLUMN TIP;
 
 -- FN5
 --  Tabelele nu au dependențe join redundante. FN5 necesită că fiecare dependență este specificată prin intermediul cheilor primare și cheilor externe. Toate relațiile în tabelele date respectă FN5.
-
