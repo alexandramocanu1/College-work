@@ -1,0 +1,384 @@
+
+
+-- 12. 
+-- a) Subcereri sincronizate în care intervin cel puțin 3 tabele
+SELECT A.ID_ANIMAL, A.NUME, V.NUME AS NUME_VETERINAR, C.VACCINURI
+FROM ANIMAL A
+JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP
+JOIN CARTE_DE_SANATATE C ON A.ID_ANIMAL = C.ID_ANIMAL
+WHERE EXISTS (
+    SELECT 1
+    FROM CARTE_DE_SANATATE C2
+    WHERE C2.ID_ANIMAL = A.ID_ANIMAL AND C2.VACCINURI LIKE '%Rabie%'
+);
+
+
+-- c) Grupări de date, funcții grup, filtrare la nivel de grupuri cu subcereri 
+SELECT S.TIP_NEVOIE, COUNT(A.ID_ANIMAL) AS NUMAR_ANIMALE
+FROM SECTOR S
+JOIN SECTIE_SECTOR SS ON S.ID_SECTOR = SS.ID_SECTOR
+JOIN SECTIE SE ON SS.ID_SECTIE = SE.ID_SECTIE
+JOIN ANIMAL A ON SE.ID_CUSCA = A.ID_CUSCA
+GROUP BY S.TIP_NEVOIE
+HAVING COUNT(A.ID_ANIMAL) > (
+    SELECT AVG(COUNT(A2.ID_ANIMAL))
+    FROM SECTOR S2
+    JOIN SECTIE_SECTOR SS2 ON S2.ID_SECTOR = SS2.ID_SECTOR
+    JOIN SECTIE SE2 ON SS2.ID_SECTIE = SE2.ID_SECTIE
+    JOIN ANIMAL A2 ON SE2.ID_CUSCA = A2.ID_CUSCA
+    GROUP BY S2.TIP_NEVOIE
+);
+
+-- d) Ordonări și utilizarea funcțiilor NVL și DECODE
+ALTER TABLE CERERE_ADOPTIE ADD TIP_CERERE VARCHAR(255);
+
+-- Interogarea:
+SELECT V.NUME, V.PRENUME, NVL(CA.NUMAR_CERERI, 0) AS NUMAR_CERERI,
+    DECODE(CA.TIP_CERERE, 'Urgent', CA.NUMAR_CERERI * 1.2, CA.NUMAR_CERERI) AS AJUSTARE_CERERI
+FROM VIZITATOR V
+LEFT JOIN (
+    SELECT ID_VIZITATOR, COUNT(*) AS NUMAR_CERERI, MAX(TIP_CERERE) AS TIP_CERERE
+    FROM CERERE_ADOPTIE
+    GROUP BY ID_VIZITATOR
+) CA ON V.CNP = CA.ID_VIZITATOR
+ORDER BY V.NUME, V.PRENUME;
+
+
+-- e) Utilizarea funcțiilor pe șiruri de caractere, funcții pe date calendaristice și expresii CASE
+ALTER TABLE VETERINAR ADD SPECIALITATE VARCHAR(255);
+
+-- Interogarea:
+SELECT A.NUME,
+    TRUNC(MONTHS_BETWEEN(SYSDATE, A.DATA_SOSIRE) / 12) AS ANI,
+    MOD(TRUNC(MONTHS_BETWEEN(SYSDATE, A.DATA_SOSIRE)), 12) AS LUNI,
+    INITCAP(A.NUME) AS NUME_COMPLET,
+    REPLACE(C.VACCINURI, 'Rabie', 'Antirabic') AS TIP_VACCIN,
+    CASE 
+        WHEN V.SPECIALITATE = 'Chirurgie' THEN 'Chirurg'
+        ELSE 'Generalist'
+    END AS TIP_VETERINAR
+FROM ANIMAL A
+JOIN CARTE_DE_SANATATE C ON A.ID_ANIMAL = C.ID_ANIMAL
+JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP;
+
+-- Funcții pe șiruri de caractere:
+
+-- INITCAP(A.NUME) AS NUME_COMPLET - Transformă primul caracter al fiecărui cuvânt în majusculă și restul în minuscule.
+-- REPLACE(C.VACCINURI, 'Rabie', 'Antirabic') AS TIP_VACCIN - Înlocuiește toate aparițiile șirului 'Rabie' cu 'Antirabic'.
+-- Funcții pe date calendaristice:
+
+-- TRUNC(MONTHS_BETWEEN(SYSDATE, A.DATA_SOSIRE) / 12) AS ANI - Calculează numărul de ani între data curentă și DATA_SOSIRE a animalului.
+-- MOD(TRUNC(MONTHS_BETWEEN(SYSDATE, A.DATA_SOSIRE)), 12) AS LUNI - Calculează numărul de luni (restul) din numărul total de luni dintre data curentă și DATA_SOSIRE.
+-- Expresii CASE:
+
+-- CASE WHEN V.SPECIALITATE = 'Chirurgie' THEN 'Chirurg' ELSE 'Generalist' END AS TIP_VETERINAR - Returnează 'Chirurg' dacă SPECIALITATE este 'Chirurgie', altfel returnează 'Generalist'.
+
+
+-- am combinat b) si f) subcereri nesincronizate în clauza FROM si utilizarea a cel puțin 1 bloc de cerere (clauza WITH)
+WITH ANIMALE_PE_SECTIE AS (
+    SELECT SE.ID_SECTIE, COUNT(A.ID_ANIMAL) AS NUMAR_ANIMALE
+    FROM SECTIE SE
+    JOIN CUSCA C ON SE.ID_CUSCA = C.ID_CUSCA
+    JOIN ANIMAL A ON C.ID_CUSCA = A.ID_CUSCA
+    GROUP BY SE.ID_SECTIE
+)
+SELECT 
+    SECTIE_INFO.NUME AS NUME_SECTIE, 
+    ANIMALE_INFO.NUMAR_ANIMALE
+FROM 
+    (SELECT SE.ID_SECTIE, SE.NUME FROM SECTIE SE) SECTIE_INFO
+JOIN 
+    (SELECT AP.ID_SECTIE, AP.NUMAR_ANIMALE FROM ANIMALE_PE_SECTIE AP) ANIMALE_INFO
+ON 
+    SECTIE_INFO.ID_SECTIE = ANIMALE_INFO.ID_SECTIE;
+
+
+-- b) Subcereri nesincronizate în clauza FROM
+-- SELECT X."DENUMIRE FARMACIE", X."DENUMIRE MEDICAMENT", X."CANTITATE DISPONIBILA"
+-- FROM (
+--     SELECT F.NUME AS "DENUMIRE FARMACIE", M.DENUMIRE_PRODUS AS "DENUMIRE MEDICAMENT", M.CANTITATE AS "CANTITATE DISPONIBILA"
+--     FROM FARMACIE F
+--     JOIN MEDICAMENT M ON F.NUMAR = M.NUMAR
+-- ) X;
+
+-- f) Utilizarea clauzei WITH
+--ALTER TABLE SECTIE ADD NUME_SECTIE VARCHAR(255);
+
+-- WITH ANIMALE_PE_SECTIE AS (
+--     SELECT SE.ID_SECTIE, COUNT(A.ID_ANIMAL) AS NUMAR_ANIMALE
+--     FROM SECTIE SE
+--     JOIN ANIMAL A ON SE.ID_CUSCA = A.ID_CUSCA
+--     GROUP BY SE.ID_SECTIE
+-- )
+-- SELECT SE.NUME AS NUME_SECTIE, AP.NUMAR_ANIMALE
+-- FROM SECTIE SE
+-- JOIN ANIMALE_PE_SECTIE AP ON SE.ID_SECTIE = AP.ID_SECTIE;
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+-- 13 a) Operații de actualizare (UPDATE) utilizând subcereri
+
+-- 13.1 Actualizarea numărului de locuri din cuști în funcție de numărul de animale alocate:
+UPDATE CUSCA
+SET NUMAR_LOCURI = NUMAR_LOCURI - (
+    SELECT COUNT(*)
+    FROM ANIMAL A
+    WHERE A.ID_CUSCA = CUSCA.ID_CUSCA
+)
+WHERE ID_CUSCA IN (
+    SELECT ID_CUSCA
+    FROM ANIMAL
+);
+
+-- 13.2 Actualizarea denumirii produselor în magazin bazată pe contractul asociat:
+UPDATE MAGAZIN
+SET NUME = (
+    SELECT TIP
+    FROM CONTRACT C
+    WHERE C.ID_MAGAZIN = MAGAZIN.ID_MAGAZIN
+)
+WHERE ID_MAGAZIN IN (
+    SELECT ID_MAGAZIN
+    FROM CONTRACT
+);
+
+-- 13.3 Actualizarea numărului de medicamente disponibile în farmacie în funcție de stocul curent:
+UPDATE FARMACIE F
+SET NUMAR = (
+    SELECT COUNT(*)
+    FROM MED M
+    WHERE M.ID_FARMACIE = F.ID_FARMACIE
+)
+WHERE F.ID_FARMACIE IN (
+    SELECT DISTINCT ID_FARMACIE
+    FROM MED
+);
+
+
+-- 13 b) Operații de suprimare (DELETE) utilizând subcereri
+-- 13.4 Ștergerea animalelor care nu au fost vizitate în ultimele 6 luni:
+DELETE FROM CONSULTATIE C
+WHERE C.ID_ANIMAL IN (
+    SELECT A.ID_ANIMAL
+    FROM ANIMAL A
+    LEFT JOIN CONSULTATIE C2 ON A.ID_ANIMAL = C2.ID_ANIMAL
+    WHERE C2.ID_ANIMAL IS NULL OR C2.DATA < ADD_MONTHS(SYSDATE, -6)
+);
+
+
+-- 13.5 Ștergerea vizitatorilor care nu au cereri de adopție asociate:
+DELETE FROM VIZITATOR
+WHERE CNP NOT IN (
+    SELECT DISTINCT ID_VIZITATOR
+    FROM CERERE_ADOPTIE
+);
+
+-- 13.6 Ștergerea magazinelor fără produse asociate:
+DELETE FROM MAGAZIN
+WHERE ID_MAGAZIN NOT IN (
+    SELECT DISTINCT ID_MAGAZIN
+    FROM HRANA
+);
+
+-- 13. 7
+INSERT INTO CONSULTATIE (ID_CONSULTATIE, ID_ANIMAL, DATA, ID_VETERINAR)
+VALUES (
+    (SELECT NVL(MAX(ID_CONSULTATIE), 0) + 1 FROM CONSULTATIE),
+    (SELECT ID_ANIMAL FROM ANIMAL WHERE NUME = 'Rex'),
+    TO_DATE('2024-05-31', 'YYYY-MM-DD'),
+    (SELECT CNP FROM VETERINAR WHERE NUME = 'Ana' AND PRENUME = 'Popa')
+);
+
+
+-- 13.8
+INSERT INTO CERERE_ADOPTIE (SERIE, ID_ANIMAL, ID_VIZITATOR, DATA)
+VALUES (
+    'XYZ123',
+    (SELECT ID_ANIMAL FROM ANIMAL WHERE NUME = 'Max'),
+    (SELECT CNP FROM VIZITATOR WHERE NUME = 'Maria' AND PRENUME = 'Stefanescu'),
+    CURRENT_DATE
+);
+
+
+--13.9
+INSERT INTO MED (ID_FARMACIE, NUMAR)
+SELECT ID_FARMACIE, 3
+FROM FARMACIE
+WHERE NUME LIKE '%ANIMA%';
+
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+-- 14) 
+-- cele 3 tabele: ANIMAL, VETERINAR, si SECTIE.
+CREATE VIEW VIZUALIZARE_ANIMALE AS
+SELECT A.ID_ANIMAL, A.NUME, A.RASA, A.VARSTA, V.NUME AS NUME_VETERINAR, S.NUME AS NUME_SECTIE
+FROM ANIMAL A
+JOIN VETERINAR V ON A.ID_VETERINAR = V.CNP
+JOIN SECTIE S ON A.ID_CUSCA = S.ID_CUSCA;
+
+-- Operație LMD permisă
+SELECT * FROM VIZUALIZARE_ANIMALE;
+
+-- Operație LMD nepermisă
+INSERT INTO VIZUALIZARE_ANIMALE (ID_ANIMAL, NUME, RASA, VARSTA, NUME_VETERINAR, NUME_SECTIE)
+VALUES (6, 'Bella', 'Poodle', 2, 'Elena Popa', 'Sectia 1');
+-- Operația de inserare (INSERT) nu este permisă deoarece vizualizarea combină date din mai multe tabele,
+-- iar inserarea directă ar necesita actualizări coerente în toate tabelele implicate,
+-- ceea ce nu poate fi realizat printr-o singură operație de inserare în vizualizare.
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+-- 15. Operația outerjoin pe minimum 4 tabele
+SELECT A.ID_ANIMAL, A.NUME, S.NUME AS NUME_SECTIE, SECTOR.TIP_NEVOIE, C.VACCINURI
+FROM ANIMAL A
+LEFT JOIN SECTIE S ON A.ID_CUSCA = S.ID_CUSCA
+LEFT JOIN SECTIE_SECTOR SS ON S.ID_SECTIE = SS.ID_SECTIE
+LEFT JOIN SECTOR SECTOR ON SS.ID_SECTOR = SECTOR.ID_SECTOR
+LEFT JOIN CARTE_DE_SANATATE C ON A.ID_ANIMAL = C.ID_ANIMAL;
+
+
+-- o cerere ce utilizează operația division
+
+SELECT A.NUME
+FROM ANIMAL A
+WHERE NOT EXISTS (
+    SELECT S.ID_SECTOR
+    FROM SECTOR S
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM SECTIE_SECTOR SS
+        JOIN SECTIE SE ON SS.ID_SECTIE = SE.ID_SECTIE
+        WHERE SE.ID_CUSCA = A.ID_CUSCA
+          AND SS.ID_SECTOR = S.ID_SECTOR
+    )
+);
+
+
+-- Cerere care implementează analiza top-n
+SELECT *
+FROM (
+    SELECT A.NUME, A.RASA, A.VARSTA, RANK() OVER (ORDER BY A.VARSTA DESC) AS RANG
+    FROM ANIMAL A
+)
+WHERE RANG <= 3;
+
+
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+-- 16. optimizare
+
+-- sql initial
+SELECT A.NUME, M.NUME 
+FROM ANGAJAT A
+JOIN CONTRACT C ON A.ID_CONTRACT = C.NUMAR
+JOIN MAGAZIN M ON C.id_magazin = M.ID_MAGAZIN
+WHERE A.NUME LIKE 'A%';
+
+-- Arbore initial
+-- π A.NUME, M.NUME
+--    |
+-- σ A.NUME LIKE 'A%' AND M.NUMAR_LOCURI > 10
+--    |
+-- ⋈ C.id_magazin = M.ID_MAGAZIN
+--    |
+-- ⋈ A.ID_CONTRACT = C.NUMAR
+--    |
+-- ANGAJAT      CONTRACT      MAGAZIN
+
+
+-- Regulile de optimizare:
+-- Regula 1: Realizarea selecțiilor cât mai jos posibil.
+-- Regula 3: Combinarea selecțiilor.
+-- Regula 5: Comutativitatea selecțiilor cu proiectiile.
+-- Regula 6: Folosirea indecsilor pentru îmbunătățirea performanței.
+
+
+-- Arbore optimizat
+-- π A.NUME, M.NUME
+--    |
+-- ⋈ C.id_magazin = M.ID_MAGAZIN
+--    |
+-- σ M.NUMAR_LOCURI > 10
+--    |
+-- π C.id_magazin
+--    |
+-- ⋈ A.ID_CONTRACT = C.NUMAR
+--    |
+-- σ A.NUME LIKE 'A%'
+--    |
+-- π A.ID_CONTRACT, A.NUME
+--    |
+-- ANGAJAT      CONTRACT      MAGAZIN
+
+
+-- Crearea de indecși pe coloanele relevante
+-- CREATE INDEX idx_angajat_nume ON ANGAJAT (NUME);
+-- CREATE INDEX idx_contract_numar ON CONTRACT (NUMAR);
+-- CREATE INDEX idx_contract_id_magazin ON CONTRACT (id_magazin);
+-- CREATE INDEX idx_magazin_id_magazin ON MAGAZIN (ID_MAGAZIN);
+
+SELECT A.NUME, M.NUME 
+FROM 
+  -- Subinterogare pentru a aplica filtrul pe numele angajaților cât mai jos în arborele de execuție
+  (SELECT ID_CONTRACT, NUME 
+   FROM ANGAJAT 
+   WHERE NUME LIKE 'A%') A
+JOIN 
+  -- Subinterogare pentru tabelul CONTRACT pentru a limita coloanele returnate
+  (SELECT NUMAR, id_magazin 
+   FROM CONTRACT) C ON A.ID_CONTRACT = C.NUMAR
+JOIN 
+  -- Subinterogare pentru tabelul MAGAZIN pentru a limita coloanele returnate
+  (SELECT ID_MAGAZIN, NUME 
+   FROM MAGAZIN) M ON C.id_magazin = M.ID_MAGAZIN;
+
+
+
+
+
+-- 17. 
+-- BCNF
+-- Toate tabelele sunt în forma normală Boyce-Codd deoarece fiecare atribut non-cheie depinde în mod funcțional doar de cheile candidat.
+-- Verificăm tabela CONTRACT pentru BCNF.
+-- Observăm că "DATA_EMITERE" determină "DURATA" și "TIP".
+-- Creăm tabela CONTRACT pentru a respecta BCNF.
+CREATE TABLE CONTRACT (
+    NUMAR INT PRIMARY KEY,
+    DATA_EMITERE DATE,
+    DURATA INT,
+    TIP VARCHAR(255),
+    ID_MAGAZIN INT,
+    ID_FARMACIE INT,
+    ID_CLINICA INT,
+    FOREIGN KEY (ID_MAGAZIN) REFERENCES MAGAZIN (ID_MAGAZIN),
+    FOREIGN KEY (ID_FARMACIE) REFERENCES FARMACIE (ID_FARMACIE),
+    FOREIGN KEY (ID_CLINICA) REFERENCES CLINICA_VETERINARA (ID_CLINICA)
+);
+
+-- Eliminăm dependențele funcționale netriviale din tabela CONTRACT.
+ALTER TABLE CONTRACT
+DROP COLUMN DURATA,
+DROP COLUMN TIP;
+
+
+-- FN4
+-- Verificarea FN4 necesită ca tabelele să nu aibă multivalori independente. Fiecare tabel trebuie să aibă atribute care nu se repetă în contexte diferite.
+
+-- FN5
+--  Tabelele nu au dependențe join redundante. FN5 necesită că fiecare dependență este specificată prin intermediul cheilor primare și cheilor externe. Toate relațiile în tabelele date respectă FN5.
