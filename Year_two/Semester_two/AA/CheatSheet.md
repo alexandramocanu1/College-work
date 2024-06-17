@@ -58,3 +58,4 @@
   \[
   \text{Aria} = \frac{1}{2} \left| \sum_{i=1}^{n-1} (x_i y_{i+1} - y_i x_{i+1}) \right|
   \]
+  
