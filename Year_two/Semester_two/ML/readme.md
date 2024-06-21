@@ -54,9 +54,8 @@ X_validation = load_images_from_folder(validation_dir)
 print(f"Train images shape: {X_train.shape}")
 print(f"Test images shape: {X_test.shape}")
 print(f"Validation images shape: {X_validation.shape}")
-
+# numar inmagini, inaltime X latime, RGB (~3, adica Rosu, Verge, Albastu)
 ```
-
 
 # Output
 
