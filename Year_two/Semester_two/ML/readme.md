@@ -86,8 +86,8 @@ def load_and_preprocess_images(folder, img_height, img_width):
     return np.array(images), np.array(labels)
 
 # Căile către directoarele de date
-train_dir = '/kaggle/input/dataset/train'  # Înlocuiește cu calea ta reală
-validation_dir = '/kaggle/input/dataset/validation'  # Înlocuiește cu calea ta reală
+train_dir = '/kaggle/input/dataset/train'  
+validation_dir = '/kaggle/input/dataset/validation' 
 
 # Dimensiunile imaginilor
 img_height = 128
