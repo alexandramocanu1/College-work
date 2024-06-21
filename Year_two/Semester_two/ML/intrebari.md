@@ -1,4 +1,4 @@
-# INtrebari
+# Intrebari
 
 
 1. ** Pentru ce se folosește ReLU?**
