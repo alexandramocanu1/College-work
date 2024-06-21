@@ -9,15 +9,15 @@ Acest repository conține un pipeline complet pentru antrenarea, evaluarea și �
 Codul utilizează diverse biblioteci Python pentru algebră liniară, procesarea datelor și învățare automată. Se configurează mediul pentru a încărca aceste biblioteci:
 
 ```python
-import numpy as np  # linear algebra
-import pandas as pd  # data processing
-import os
-from PIL import Image
-from sklearn.preprocessing import LabelEncoder
-from tensorflow.keras.utils import load_img, img_to_array
-import tensorflow as tf
-from tensorflow.keras import layers
-from tensorflow.keras.models import Sequential
+import numpy as np  # algebra liniară
+import pandas as pd  # procesarea datelor
+import os  # operațiuni cu fișiere și directoare
+from PIL import Image  # procesarea imaginilor
+from sklearn.preprocessing import LabelEncoder  # codificarea etichetelor
+from tensorflow.keras.utils import load_img, img_to_array  # încărcarea și conversia imaginilor
+import tensorflow as tf  # cadru pentru învățare profundă
+from tensorflow.keras import layers  # construirea straturilor de rețea neuronală
+from tensorflow.keras.models import Sequential  # model secvențial pentru rețele neuronale
 ```
 
 
