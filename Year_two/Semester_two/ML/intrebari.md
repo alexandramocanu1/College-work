@@ -1,9 +1,6 @@
 1. **Pentru ce se folosește ReLU?**
-   - ReLU este o funcție care ajută rețelele neuronale să învețe lucruri mai complicate și să se antreneze mai bine.
-  
-
+   - ReLU este o funcție: f(x) = max(0,x)
    - ReLU transformă valorile negative în zero și păstrează valorile pozitive, ceea ce ajută rețeaua să învețe modele mai complexe din date.
-   - ReLU ajută la prevenirea încetinirii antrenamentului în rețelele adânci, permițând rețelei să învețe mai repede și mai eficient.
 
 2. **Ce înseamnă Dense?**
    - Un strat Dense este un strat unde fiecare neuron este conectat la toți neuronii din stratul anterior.
@@ -24,14 +21,13 @@ Aceste straturi ajută rețeaua să ia decizii sau să facă predicții.
 - Utilizează filtre: Aplică filtre mici peste imagine pentru a descoperi caracteristici semnificative.
 - Reduce dimensiunea datelor: Transformă imaginea în hărți de caracteristici care evidențiază locațiile și tipurile de caracteristici găsite.
 
-
 7. **Ce e ăla un filtru (la CNN)?**
    - Un filtru este un mic șablon care "scanază" imaginea pentru a găsi caracteristici importante, cum ar fi margini sau texturi.
 
 8. **De ce ai folosit Rescaling(1./255) în primul strat al modelului?**
    - Rescaling(1./255) normalizează valorile pixelilor imaginilor astfel încât să fie între 0 și 1, ceea ce ajută modelul să învețe mai repede.
 
-9. **Ce înseamnă tf.data.Dataset.from_tensor_slices((X_train, y_train)) și de ce ai folosit această metodă pentru a crea setul de date de antrenament?**
+9. **tf.data.Dataset.from_tensor_slices((X_train, y_train)) - metodă pentru a crea setul de date de antrenament**
    - Aceasta creează un set de date TensorFlow din imaginile și etichetele noastre, ceea ce face mai ușoară manipularea și antrenarea modelului cu date mari.
   
 10. **Set de date TensorFlow** 
