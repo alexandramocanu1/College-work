@@ -1,7 +1,7 @@
 # Intrebari
 
 
-1. ** Pentru ce se folosește ReLU?**
+1. **Pentru ce se folosește ReLU?**
 - Funcția de activare ReLU este folosită pentru a introduce non-linearitate într-o rețea neurală,
 ajutând la reducerea problemei gradientului care dispare în timpul antrenamentului modelelor de învățare automată
 și permițând rețelelor neuronale să învețe relații mai complexe în date.
