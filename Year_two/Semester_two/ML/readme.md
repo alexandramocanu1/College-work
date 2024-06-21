@@ -499,21 +499,4 @@ Epoch 9/10
 328/328 ━━━━━━━━━━━━━━━━━━━━ 5s 14ms/step - accuracy: 0.0634 - loss: 2.7716 - val_accuracy: 0.0564 - val_loss: 2.7737
 Epoch 10/10
 328/328 ━━━━━━━━━━━━━━━━━━━━ 5s 15ms/step - accuracy: 0.0718 - loss: 2.7702 - val_accuracy: 0.0607 - val_loss: 2.7743
----------------------------------------------------------------------------
-NameError                                 Traceback (most recent call last)
-Cell In[28], line 48
-     40 epochs = 10
-     42 history = model.fit(
-     43     train_ds,
-     44     validation_data=val_ds,
-     45     epochs=epochs
-     46 )
-     47 test_ds = tf.keras.preprocessing.image_dataset_from_directory(
----> 48     test_data_dir,
-     49     image_size=(img_height, img_width),
-     50     batch_size=batch_size
-     51 )
-     54 # Evaluarea modelului pe setul de test
-     55 test_loss, test_acc = model.evaluate(test_ds, verbose=2)
-
-NameError: name 'test_data_dir' is not defined```
+```
