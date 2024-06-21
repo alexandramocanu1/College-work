@@ -1,44 +1,48 @@
-# Intrebari
-
-
 1. **Pentru ce se folosește ReLU?**
-- Funcția de activare ReLU este folosită pentru a introduce non-linearitate într-o rețea neurală,
-ajutând la reducerea problemei gradientului care dispare în timpul antrenamentului modelelor de învățare automată
-și permițând rețelelor neuronale să învețe relații mai complexe în date.
+   - ReLU este o funcție care ajută rețelele neuronale să învețe lucruri mai complicate și să se antreneze mai bine.
 
 2. **Ce înseamnă Dense?**
-   - Straturile Dense sunt straturi neuronale fully connected (complet conectate) din rețelele neuronale.
-   - Fiecare neuron dintr-un strat Dense primește input de la toți neuronii stratului anterior.
-   - Aceste straturi sunt utilizate pentru a efectua clasificări sau regresii pe baza caracteristicilor extrase din straturile anterioare.
+   - Un strat Dense este un strat unde fiecare neuron este conectat la toți neuronii din stratul anterior. Aceste straturi ajută rețeaua să ia decizii sau să facă predicții.
 
 3. **Ce înseamnă Dropout?**
-   - Dropout este o tehnică de regularizare utilizată pentru a preveni overfitting-ul în rețelele neuronale.
-   - Ea funcționează prin "renunțarea" la un procent de neuroni în timpul antrenamentului, forțând rețeaua să învețe caracteristici mai robuste și independente.
+   - Dropout este o metodă de a face rețeaua neurală mai robustă, "oprind" aleatoriu unii neuroni în timpul antrenamentului pentru a preveni overfitting-ul (când modelul învață prea bine pe datele de antrenament și nu generalizează bine pe date noi).
 
 4. **Ce faceți cu etichetele de validare care nu sunt prezente în setul de antrenament (filtered_validation_labels)?**
-   - Etichetele de validare care nu sunt prezente în setul de antrenament sunt filtrate pentru a elimina eventualele discrepanțe
-     între etichetele de antrenament și cele de validare.
-   - Acest lucru este important pentru a asigura că modelul este evaluat corect pe date care au același spațiu de etichete ca și datele de antrenament.
+   - Dacă găsim etichete în setul de validare care nu există în setul de antrenament, le eliminăm pentru a ne asigura că modelul este evaluat corect.
 
 5. **De ce ai folosit layers.MaxPooling2D() după fiecare strat Conv2D?**
-   - MaxPooling2D este folosit pentru a reduce dimensiunea spațială a reprezentării de ieșire,
-     ceea ce ajută la reducerea numărului de parametri și la controlul overfitting-ului.
-   - Aceasta este o tehnică comună în CNN pentru a păstra caracteristicile importante și a reduce suprapunerea.
+   - MaxPooling2D reduce dimensiunea imaginii rezultate de la stratul Conv2D, ceea ce face modelul mai eficient și reduce riscul de overfitting.
 
 6. **Ce e ăla un filtru (la CNN)?**
-   - Un filtru în contextul rețelelor neuronale convoluționale (CNN) este un șablon mic de dimensiuni (de exemplu, 3x3 sau 5x5)
-     care se deplasează peste imaginea de intrare pentru a extrage caracteristici locale, cum ar fi marginile sau texturile.
+   - Un filtru este un mic șablon care "scanază" imaginea pentru a găsi caracteristici importante, cum ar fi margini sau texturi.
 
 7. **De ce ai folosit Rescaling(1./255) în primul strat al modelului?**
-   - Rescaling(1./255) este folosit pentru a normaliza valorile pixelilor imaginilor de intrare.
-   - Prin împărțirea fiecărui pixel cu 255, valorile acestora sunt aduse în intervalul [0, 1],
-     ceea ce ajută la convergența mai rapidă a modelului în timpul antrenamentului.
+   - Rescaling(1./255) normalizează valorile pixelilor imaginilor astfel încât să fie între 0 și 1, ceea ce ajută modelul să învețe mai repede.
 
 8. **Ce înseamnă tf.data.Dataset.from_tensor_slices((X_train, y_train)) și de ce ai folosit această metodă pentru a crea setul de date de antrenament?**
-   - Această metodă crează un obiect Dataset TensorFlow din tensori (array-uri numpy) X_train și y_train.
-   - Este utilă pentru a gestiona seturile de date mari eficient în TensorFlow, permitând iterații rapide și manipularea ușoară a datelor pentru antrenament.
+   - Aceasta creează un set de date TensorFlow din imaginile și etichetele noastre, ceea ce face mai ușoară manipularea și antrenarea modelului cu date mari.
 
 9. **Cum arată graficul de convergență al modelului tău?**
-   - Graficul de convergență al modelului arată evoluția metricilor de antrenament și validare (de exemplu, acuratețe și loss)
-     pe măsură ce antrenarea progresează pe parcursul epocilor.
-   - Acesta poate fi vizualizat folosind biblioteca matplotlib sau alte instrumente de vizualizare.
+   - Graficul de convergență arată cum s-a îmbunătățit performanța modelului pe măsură ce a fost antrenat. Acesta poate arăta atât precizia, cât și pierderea (loss) pe parcursul epocilor de antrenament.
+
+### Întrebări și răspunsuri suplimentare
+
+10. **Ce este o epocă în contextul antrenării unui model?**
+    - O epocă este o trecere completă prin toate datele de antrenament. Antrenarea unui model implică de obicei mai multe epoci pentru a îmbunătăți performanța.
+
+11. **De ce folosim metode de augmentare a datelor?**
+    - Augmentarea datelor creează versiuni modificate ale imaginilor din setul de date pentru a ajuta modelul să fie mai robust și să se generalizeze mai bine la date noi.
+
+12. **Ce înseamnă că un model se "antrenează"?**
+    - Antrenarea unui model înseamnă ajustarea parametrilor acestuia pe baza datelor de antrenament pentru a îmbunătăți performanța la predicții.
+
+13. **Ce este overfitting-ul?**
+    - Overfitting-ul este atunci când un model învață prea bine detaliile din setul de antrenament, dar nu funcționează bine pe date noi.
+
+14. **De ce folosim straturi convoluționale (Conv2D)?**
+    - Straturile convoluționale (Conv2D) sunt folosite pentru a detecta caracteristici importante în imagini, cum ar fi marginile, texturile și alte tipare vizuale.
+
+15. **Ce este o rețea neuronală?**
+    - O rețea neuronală este un model de învățare automată inspirat de modul în care funcționează creierul uman, folosit pentru a rezolva probleme complexe prin învățarea de la date.
+   
+    O rețea neurală artificială este un grup interconectat de noduri, inspirat de o simplificare a neuronilor din creier. Fiecare nod reprezintă un neuron artificial și o săgeată reprezintă o conexiune de la ieșirea unui neuron artificial la intrarea altuia.
