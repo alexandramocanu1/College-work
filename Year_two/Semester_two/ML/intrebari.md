@@ -50,3 +50,7 @@ Aceste straturi ajută rețeaua să ia decizii sau să facă predicții.
 
 16. **Ce este o rețea neuronală?**
     - O rețea neurală artificială este un grup interconectat de noduri, inspirat de o simplificare a neuronilor din creier. Fiecare nod reprezintă un neuron artificial și o săgeată reprezintă o conexiune de la ieșirea unui neuron artificial la intrarea altuia.
+   
+17. **Metoda accuracy**
+    - accuracy reprezintă raportul dintre numărul de predicții corecte făcute de model și numărul total de exemple de test. De exemplu, o valoare de accuracy de 0.85 înseamnă că modelul a corect clasificat 85% din exemplele de test.
+    - alte metrici precum precision, recall sau F1-score
