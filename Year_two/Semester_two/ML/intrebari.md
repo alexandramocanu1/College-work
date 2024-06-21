@@ -42,5 +42,3 @@ ajutând la reducerea problemei gradientului care dispare în timpul antrenament
    - Graficul de convergență al modelului arată evoluția metricilor de antrenament și validare (de exemplu, acuratețe și loss)
      pe măsură ce antrenarea progresează pe parcursul epocilor.
    - Acesta poate fi vizualizat folosind biblioteca matplotlib sau alte instrumente de vizualizare.
-
-Dacă ai alte întrebări sau ai nevoie de clarificări suplimentare, nu ezita să întrebi!
